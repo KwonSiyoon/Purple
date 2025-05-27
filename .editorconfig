@@ -1,0 +1,18 @@
+root = true
+
+# All files
+[*.cpp]
+charset=utf-8
+
+[*.h]
+charset=utf-8
+
+# Xml files
+[*.xml]
+indent_size = 2
+
+[*.hlsl]
+charset = utf-8
+
+[*.hlsli]
+charset = utf-8
