@@ -8,6 +8,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Controller.h"
+#include "PPCharacterControlData.h"
+#include "EnhancedInputSubsystems.h"
 
 // Sets default values
 APPCharacterBase::APPCharacterBase()
@@ -38,8 +40,23 @@ APPCharacterBase::APPCharacterBase()
 		GetMesh()->SetAnimClass(CharacterAnim.Class);
 	}
 	
+	static ConstructorHelpers::FObjectFinder<UPPCharacterControlData> QuarterDataRef(TEXT("/Script/Purple.PPCharacterControlData'/Game/Purple/CharacterControl/PPC_Quarter.PPC_Quarter'"));
+	if (QuarterDataRef.Object)
+	{
+		CharacterControlManager.Add(ECharacterControlType::Quarter, QuarterDataRef.Object);
+	}
 
+	static ConstructorHelpers::FObjectFinder<UPPCharacterControlData> HorseViewDataRef(TEXT("/Script/Purple.PPCharacterControlData'/Game/Purple/CharacterControl/PPC_HorseView.PPC_HorseView'"));
+	if (HorseViewDataRef.Object)
+	{
+		CharacterControlManager.Add(ECharacterControlType::Horse, HorseViewDataRef.Object);
+	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> QuarterMoveActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Purple/Input/IA_Move.IA_Move'"));
+	if (QuarterMoveActionRef.Object)
+	{
+		QuarterMoveAction = QuarterMoveActionRef.Object;
+	}
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -68,6 +85,8 @@ APPCharacterBase::APPCharacterBase()
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	Camera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+	CurrentCharacterControlType = ECharacterControlType::Quarter;
+
 }
 
 // Called when the game starts or when spawned
@@ -75,6 +94,7 @@ void APPCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	SetCharacterControl(CurrentCharacterControlType);
 }
 
 void APPCharacterBase::QuarterMove(const FInputActionValue& Value)
@@ -107,17 +127,56 @@ void APPCharacterBase::QuarterMove(const FInputActionValue& Value)
 	AddMovementInput(MoveDirection, MovementvectorSize);
 }
 
-// Called every frame
-void APPCharacterBase::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
 // Called to bind functionality to input
 void APPCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	auto EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
+
+	EnhancedInputComponent->BindAction(QuarterMoveAction, ETriggerEvent::Triggered, this, &APPCharacterBase::QuarterMove);
+
+}
+
+void APPCharacterBase::SetCharacterControlData(const UPPCharacterControlData* InCharacterControlData)
+{
+	// Pawn.
+	bUseControllerRotationYaw = InCharacterControlData->bUseControllerRotationYaw;
+
+	// CharacterMovement.
+	GetCharacterMovement()->bOrientRotationToMovement = InCharacterControlData->bOrientRotationToMovement;
+	GetCharacterMovement()->bUseControllerDesiredRotation = InCharacterControlData->bUseControllerDesiredRotation;
+	GetCharacterMovement()->RotationRate = InCharacterControlData->RotationRate;
+
+	// SpringArm 관련 설정.
+	SpringArm->TargetArmLength = InCharacterControlData->TargetArmLength;
+	SpringArm->SetRelativeRotation(InCharacterControlData->RelativeRotation);
+	SpringArm->bUsePawnControlRotation = InCharacterControlData->bUsePawnControlRotation;
+	SpringArm->bInheritPitch = InCharacterControlData->bInheritPitch;
+	SpringArm->bInheritYaw = InCharacterControlData->bInheritYaw;
+	SpringArm->bInheritRoll = InCharacterControlData->bInheritRoll;
+	SpringArm->bDoCollisionTest = InCharacterControlData->bDoCollisionTest;
+}
+
+void APPCharacterBase::SetCharacterControl(ECharacterControlType NewCharacterControlType)
+{
+	// 변경할 컨트롤 타입에 대응하는 데이터 애셋 로드(TMap으로부터).
+	UPPCharacterControlData* NewCharacterControl = CharacterControlManager[NewCharacterControlType];
+	check(NewCharacterControl);
+
+	// 데이터 애셋을 사용해 관련 값 설정.
+	SetCharacterControlData(NewCharacterControl);
+
+	// Add InputMapping Context to Enhanced Input System.
+	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
+	if (auto SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+	{
+		SubSystem->ClearAllMappings();
+		SubSystem->AddMappingContext(
+			NewCharacterControl->InputMappingContext,
+			0
+		);
+	}
 
 }
 

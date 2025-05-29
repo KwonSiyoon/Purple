@@ -12,7 +12,7 @@
 UENUM()
 enum class ECharacterControlType : uint8
 {
-	Shoulder,
+	Horse,
 	Quarter
 };
 
@@ -43,11 +43,18 @@ protected:	// Input Section.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> QuarterMoveAction;
 
+	ECharacterControlType CurrentCharacterControlType;
+
+	UPROPERTY(EditAnywhere, Category = CharacterControl, meta = (AllowPrivateAccess = "true"))
+	TMap<ECharacterControlType, class UPPCharacterControlData*> CharacterControlManager;
+
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	virtual void SetCharacterControlData(const class UPPCharacterControlData* InCharacterControlData);
+
+	void SetCharacterControl(ECharacterControlType NewCharacterControlType);
 
 };
