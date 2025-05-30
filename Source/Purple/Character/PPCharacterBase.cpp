@@ -10,6 +10,7 @@
 #include "GameFramework/Controller.h"
 #include "PPCharacterControlData.h"
 #include "EnhancedInputSubsystems.h"
+#include "Enemy/PPEnemyCharacterBase.h"
 
 // Sets default values
 APPCharacterBase::APPCharacterBase()
@@ -95,6 +96,8 @@ void APPCharacterBase::BeginPlay()
 	Super::BeginPlay();
 	
 	SetCharacterControl(CurrentCharacterControlType);
+
+	//GetWorld()->SpawnActor<APPEnemyCharacterBase>(APPEnemyCharacterBase::StaticClass(), GetActorLocation() + FVector::ForwardVector * 100.0f, FRotator::ZeroRotator);
 }
 
 void APPCharacterBase::QuarterMove(const FInputActionValue& Value)

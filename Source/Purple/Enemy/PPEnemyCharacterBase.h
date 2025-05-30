@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interface/PPEnemyAIInterface.h"
+#include "Interface/PPAnimationAttackInterface.h"
 #include "PPEnemyCharacterBase.generated.h"
 
 UCLASS()
-class PURPLE_API APPEnemyCharacterBase : public ACharacter
+class PURPLE_API APPEnemyCharacterBase : public ACharacter, public IPPEnemyAIInterface, public IPPAnimationAttackInterface
 {
 	GENERATED_BODY()
 
@@ -20,7 +22,9 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void PostInitializeComponents() override;
-
+	// 콤보가 종료될 때 호출될 함수.
+	// 애님 몽타주에서 제공하는 델리게이트와 파라미터 맞춤.
+	void AttackActionEnd(class UAnimMontage* TargetMontage, bool IsProperlyEnded);
 
 public:	
 	// Called every frame
@@ -28,5 +32,26 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+
+	// Inherited via IPPEnemyAIInterface
+	float GetAIAttackRange() override;
+
+	float GetAITurnSpeed() override;
+
+	void AttackByAI() override;
+	virtual void SetAIAttackDelegate(const FAIEnemyAttackFinished& InOnAttackFinished);
+	FAIEnemyAttackFinished OnAttackFinished;
+
+	// Inherited via IPPAnimationAttackInterface
+	void AttackHitCheck() override;
+
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> AttackMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> DeadMontage;
 
 };
