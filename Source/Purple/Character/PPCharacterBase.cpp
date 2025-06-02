@@ -11,6 +11,7 @@
 #include "PPCharacterControlData.h"
 #include "EnhancedInputSubsystems.h"
 #include "Enemy/PPEnemyCharacterBase.h"
+#include "PPCollision.h"
 
 // Sets default values
 APPCharacterBase::APPCharacterBase()
@@ -20,8 +21,7 @@ APPCharacterBase::APPCharacterBase()
 
 	// 캡슐 컴포넌트 설정.
 	GetCapsuleComponent()->SetCapsuleHalfHeight(88.0f);
-	// @InComplete : 콜리전 설정 필요.
-	//GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_ABCAPSULE);
+	GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_PPPLAYER);
 
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -88.0f), FRotator(0.0f, -90.0f, 0.0f));
 
@@ -88,6 +88,11 @@ APPCharacterBase::APPCharacterBase()
 
 	CurrentCharacterControlType = ECharacterControlType::Quarter;
 
+}
+
+float APPCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	return 0.0f;
 }
 
 // Called when the game starts or when spawned

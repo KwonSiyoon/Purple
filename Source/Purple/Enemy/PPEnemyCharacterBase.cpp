@@ -8,7 +8,7 @@
 #include "Engine/DamageEvents.h"
 #include "Kismet/GameplayStatics.h"
 #include "BehaviorTree/BlackboardComponent.h"
-
+#include "PPCollision.h"
 
 // Sets default values
 APPEnemyCharacterBase::APPEnemyCharacterBase()
@@ -22,7 +22,7 @@ APPEnemyCharacterBase::APPEnemyCharacterBase()
 	bUseControllerRotationRoll = false;
 	// 컴포넌트 설정.
 	GetCapsuleComponent()->SetCapsuleHalfHeight(88.0f);
-	//GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_ABCAPSULE);
+	GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_PPENEMY);
 
 	// 무브먼트 설정.
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -40,6 +40,11 @@ APPEnemyCharacterBase::APPEnemyCharacterBase()
 
 }
 
+float APPEnemyCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	return 0.0f;
+}
+
 // Called when the game starts or when spawned
 void APPEnemyCharacterBase::BeginPlay()
 {
@@ -49,7 +54,7 @@ void APPEnemyCharacterBase::BeginPlay()
 
 	UE_LOG(LogTemp, Log, TEXT("%s"), *Player->GetName());
 
-	APPAIController* AIController = Cast<APPAIController>(AIControllerClass);
+	APPAIController* AIController = Cast<APPAIController>(GetController());
 	if (AIController)
 	{
 		AIController->GetBlackboardComponent()->SetValueAsObject("Target", Player);
@@ -89,7 +94,7 @@ void APPEnemyCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 float APPEnemyCharacterBase::GetAIAttackRange()
 {
-	return 300.0f;
+	return 100.0f;
 }
 
 float APPEnemyCharacterBase::GetAITurnSpeed()
@@ -130,7 +135,7 @@ void APPEnemyCharacterBase::AttackHitCheck()
 	FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
 
 	// 공격 거리.
-	const float AttackRange = 200.0f;
+	const float AttackRange = GetAIAttackRange();
 	//const float AttackRange = Stat->GetTotalStat().AttackRange;
 	FVector End = Start + GetActorForwardVector() * AttackRange;
 
@@ -145,13 +150,13 @@ void APPEnemyCharacterBase::AttackHitCheck()
 
 	// 트레이스를 활용해 충돌 검사.
 	FHitResult OutHitResult;
-	bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, FQuat::Identity, ECollisionChannel::ECC_Pawn, FCollisionShape::MakeSphere(AttackRadius), Params);
+	bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, FQuat::Identity, CCHANNEL_PPENEMY, FCollisionShape::MakeSphere(AttackRadius), Params);
 
 	// 충돌 감지된 경우의 처리.
 	if (HitDetected)
 	{
 		// 데미지 양.
-		const float AttackDamage = 300.0f;
+		const float AttackDamage = 10.0f;
 		//const float AttackDamage = Stat->GetTotalStat().Attack;
 
 		// 데미지 이벤트.
