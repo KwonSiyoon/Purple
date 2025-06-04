@@ -5,28 +5,14 @@
 
 
 // Sets default values
-APPSkillBase::APPSkillBase()
+UPPSkillBase::UPPSkillBase()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+
 
 }
 
-void APPSkillBase::UseSkill()
+void UPPSkillBase::UseSkill()
 {
 }
 
-// Called when the game starts or when spawned
-void APPSkillBase::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-// Called every frame
-void APPSkillBase::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
 

@@ -13,7 +13,7 @@ class PURPLE_API APPProjectileBase : public AActor
 {
 	GENERATED_BODY()
 
-	friend class APPProjectileSkill;
+	friend class UPPProjectileSkill;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -30,7 +30,7 @@ protected:
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 		bool bFromSweep, const FHitResult& SweepResult);
 
-	void InitProjectile(const class FPPProjectileData& InData);
+	void InitProjectile(const struct FPPProjectileData& InData);
 
 protected:
 

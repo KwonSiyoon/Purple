@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "GameFramework/Character.h"
+#include "Skill/PPProjectileSkill.h" // UPPProjectileSkill 정의
+#include "Skill/PPPlayerSkillType.h"       // EPlayerSkillType 정의
 #include "PPCharacterBase.generated.h"
 
 
@@ -50,6 +52,20 @@ protected:	// Input Section.
 	UPROPERTY(EditAnywhere, Category = CharacterControl, meta = (AllowPrivateAccess = "true"))
 	TMap<ECharacterControlType, class UPPCharacterControlData*> CharacterControlManager;
 
+public:	// Skill Section.
+	// 캐릭터가 보유한 스킬들
+	UPROPERTY()
+	TMap<EPlayerSkillType, TObjectPtr<UPPSkillBase>> OwnedSkills;
+
+	// 스킬 클래스와 발사체 블루프린트를 설정하기 위한 UPROPERTY
+	UPROPERTY(EditDefaultsOnly, Category = "Skill")
+	TSubclassOf<UPPProjectileSkill> ProjectileSkillClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Skill")
+	TSubclassOf<class APPProjectileBase> ProjectileBPClass;
+
+	void UseActiveSkill(EPlayerSkillType SkillType);
+
 public:	
 
 	// Called to bind functionality to input
@@ -58,5 +74,6 @@ public:
 	virtual void SetCharacterControlData(const class UPPCharacterControlData* InCharacterControlData);
 
 	void SetCharacterControl(ECharacterControlType NewCharacterControlType);
+
 
 };

@@ -136,6 +136,14 @@ void APPCharacterBase::QuarterMove(const FInputActionValue& Value)
 	AddMovementInput(MoveDirection, MovementvectorSize);
 }
 
+void APPCharacterBase::UseActiveSkill(EPlayerSkillType SkillType)
+{
+	if (OwnedSkills.Contains(SkillType))
+	{
+		OwnedSkills[SkillType]->UseSkill();
+	}
+}
+
 // Called to bind functionality to input
 void APPCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {

@@ -3,29 +3,29 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "UObject/NoExportTypes.h"
+#include "PPPlayerSkillType.h"
 #include "PPSkillBase.generated.h"
 
+
 UCLASS()
-class PURPLE_API APPSkillBase : public AActor
+class PURPLE_API UPPSkillBase : public UObject
 {
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
-	APPSkillBase();
+	UPPSkillBase();
 
+	virtual void Initialize(class APPCharacterBase* InOwner) { OwnerCharacter = InOwner; }
+
+	UFUNCTION(BlueprintCallable)
 	virtual void UseSkill();
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
+	EPlayerSkillType SkillType;
+
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	
+	UPROPERTY()
+	TObjectPtr<class APPCharacterBase> OwnerCharacter;
 
 };
