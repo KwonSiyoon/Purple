@@ -92,7 +92,8 @@ APPCharacterBase::APPCharacterBase()
 
 float APPCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	return 0.0f;
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	return DamageAmount;
 }
 
 // Called when the game starts or when spawned

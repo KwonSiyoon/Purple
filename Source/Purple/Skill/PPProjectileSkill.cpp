@@ -2,47 +2,66 @@
 
 
 #include "Skill/PPProjectileSkill.h"
-
-#include "GameFramework/ProjectileMovementComponent.h"
-#include "Components/SphereComponent.h"
-#include "NiagaraComponent.h"
+#include "Projectile/PPProjectileBase.h"
+#include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
-#include "Enemy/PPEnemyCharacterBase.h"
-#include "Engine/DamageEvents.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+
 
 APPProjectileSkill::APPProjectileSkill()
 {
-    // 충돌 컴포넌트
-    CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
-    CollisionComp->InitSphereRadius(10.0f);
-    CollisionComp->SetCollisionProfileName("Projectile");
-    CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &APPProjectileSkill::OnSphereBeginOverlap);
-    RootComponent = CollisionComp;
-
-    // 이동
-    ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
-    ProjectileMovement->InitialSpeed = 1500.f;
-    ProjectileMovement->MaxSpeed = 1500.f;
-    ProjectileMovement->bRotationFollowsVelocity = true;
-    ProjectileMovement->ProjectileGravityScale = 0.0f;
-
-    // 나이아가라 이펙트
-    NiagaraEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NiagaraEffect"));
-    NiagaraEffect->SetupAttachment(RootComponent);
-    NiagaraEffect->SetRelativeLocation(FVector(-27.0f, 0.0f, 0.0f));
+    
 }
 
 void APPProjectileSkill::UseSkill()
 {
-}
+    /*const FName SkillRowName = GetSkillRowNameByType(SkillType);
+    const FSkillData* SkillInfo = SkillDataTable->FindRow<FSkillData>(SkillRowName, TEXT("UseSkill"));
+    if (!SkillInfo) return;*/
 
-void APPProjectileSkill::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-    APPEnemyCharacterBase* EnemyPawn = Cast<APPEnemyCharacterBase>(OtherActor);
-    if (EnemyPawn)
+    const FPPProjectileData* ProjectileInfo = ProjectileDataTable->FindRow<FPPProjectileData>(
+        TEXT("Fire"),
+        TEXT("UseSkill_Projectile")
+    );
+    if (!ProjectileInfo || !ProjectileInfo->ProjectileClass) return;
+
+    // 원형으로 다방향 발사
+    const FVector Origin = GetActorLocation();
+    const FVector StartDir = -GetActorRightVector();
+    const float Radius = 100.f;
+    const int32 Count = GetLevelBasedProjectileCount();
+    const float AngleStep = 360.f / Count;
+
+    for (int32 i = 0; i < Count; ++i)
     {
-        FDamageEvent DamageEvent;
+        const float AngleDeg = i * AngleStep;
+        const FRotator Rot(0.f, AngleDeg, 0.f);
+        const FVector Dir = Rot.RotateVector(StartDir).GetSafeNormal();
 
-        //EnemyPawn->TakeDamage(0.0f, DamageEvent, GetWorld()->GetPlayerControllerIterator)
+        const FVector SpawnLoc = Origin + Dir * Radius;
+        const FRotator SpawnRot = Dir.Rotation();
+
+        FActorSpawnParameters Params;
+        Params.Owner = this;
+        Params.Instigator = GetInstigator();
+
+        APPProjectileBase* Projectile = GetWorld()->SpawnActorDeferred<APPProjectileBase>(
+            ProjectileInfo->ProjectileClass,
+            FTransform(SpawnRot, SpawnLoc),
+            this,
+            GetInstigator()
+        );
+
+        if (Projectile)
+        {
+            Projectile->InitProjectile(*ProjectileInfo);
+            UGameplayStatics::FinishSpawningActor(Projectile, FTransform(SpawnRot, SpawnLoc));
+        }
     }
 }
+
+int32 APPProjectileSkill::GetLevelBasedProjectileCount() const
+{
+    return 1 + SkillLevel;
+}
+

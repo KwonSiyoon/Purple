@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Skill/PPSkillBase.h"
+#include "Projectile/PPProjectileData.h"
 #include "PPProjectileSkill.generated.h"
 
 /**
@@ -19,24 +20,17 @@ public:
 
 	virtual void UseSkill() override;
 
-
 protected:
+    UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+    TSubclassOf<class APPProjectileBase> ProjectileClass;
 
-	// 충돌 컴포넌트
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	TObjectPtr<class USphereComponent> CollisionComp;
+    UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+    TObjectPtr<UDataTable> ProjectileDataTable;
 
-	// 이동 컴포넌트
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	TObjectPtr<class UProjectileMovementComponent> ProjectileMovement;
+    UPROPERTY(EditAnywhere, Category = "Skill")
+    int32 SkillLevel = 1;
 
-	// 나이아가라 이펙트
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	TObjectPtr<class UNiagaraComponent> NiagaraEffect;
+    int32 GetLevelBasedProjectileCount() const;
 
-	UFUNCTION()
-	void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-		bool bFromSweep, const FHitResult& SweepResult);
 
 };
