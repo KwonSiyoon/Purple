@@ -11,6 +11,9 @@
 #include "PPCharacterControlData.h"
 #include "EnhancedInputSubsystems.h"
 #include "Enemy/PPEnemyCharacterBase.h"
+#include "Skill/PPProjectileSkill.h"
+#include "Projectile/PPProjectileBase.h"
+#include "Projectile/PPProjectileData.h"
 #include "PPCollision.h"
 
 // Sets default values
@@ -59,6 +62,33 @@ APPCharacterBase::APPCharacterBase()
 		QuarterMoveAction = QuarterMoveActionRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> UseSkillSlotAction_OneRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Purple/Input/IA_Skill1.IA_Skill1'"));
+	if (UseSkillSlotAction_OneRef.Object)
+	{
+		UseSkillSlotAction_One = UseSkillSlotAction_OneRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> UseSkillSlotAction_TwoRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Purple/Input/IA_Skill2.IA_Skill2'"));
+	if (UseSkillSlotAction_TwoRef.Object)
+	{
+		UseSkillSlotAction_Two = UseSkillSlotAction_TwoRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> UseSkillSlotAction_ThreeRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Purple/Input/IA_Skill3.IA_Skill3'"));
+	if (UseSkillSlotAction_ThreeRef.Object)
+	{
+		UseSkillSlotAction_Three = UseSkillSlotAction_ThreeRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> UseSkillSlotAction_FourRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Purple/Input/IA_Skill4.IA_Skill4'"));
+	if (UseSkillSlotAction_FourRef.Object)
+	{
+		UseSkillSlotAction_Four = UseSkillSlotAction_FourRef.Object;
+	}
+
+
+
+
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
@@ -87,6 +117,13 @@ APPCharacterBase::APPCharacterBase()
 	Camera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	CurrentCharacterControlType = ECharacterControlType::Quarter;
+	ProjectileSkillClass = UPPProjectileSkill::StaticClass();
+	OwnedSkills.Add(EPlayerSkillType::Fireball, UPPProjectileSkill::StaticClass());
+	EquippedSkills.SetNum(4);
+	EquippedSkills[0] = EPlayerSkillType::Fireball;
+	EquippedSkills[1] = EPlayerSkillType::Fireball;
+	EquippedSkills[2] = EPlayerSkillType::Fireball;
+	EquippedSkills[3] = EPlayerSkillType::Fireball;
 
 }
 
@@ -140,9 +177,85 @@ void APPCharacterBase::UseActiveSkill(EPlayerSkillType SkillType)
 {
 	if (OwnedSkills.Contains(SkillType))
 	{
-		OwnedSkills[SkillType]->UseSkill();
+		UPPProjectileSkill* SkillInstance = NewObject<UPPProjectileSkill>(this, OwnedSkills[SkillType]);
+		SkillInstance->Initialize(this);
+		SkillInstance->SetProjectileClass(APPProjectileBase::StaticClass());
+		if (SkillInstance)
+		{
+			SkillInstance->UseSkill();
+		}
 	}
 }
+
+void APPCharacterBase::OnUseSkillSlot_One(const FInputActionInstance& Instance)
+{
+	bool BoolValue = Instance.GetValue().Get<bool>();
+	if (BoolValue)
+	{
+		UE_LOG(LogTemp, Log, TEXT("SKill One"));
+		if (EquippedSkills.IsValidIndex(0))
+		{
+			UseActiveSkill(EquippedSkills[0]);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("SkillSlot One is Nothing."));
+		}
+	}
+
+}
+
+void APPCharacterBase::OnUseSkillSlot_Two(const FInputActionInstance& Instance)
+{
+	bool BoolValue = Instance.GetValue().Get<bool>();
+	if (BoolValue)
+	{
+		UE_LOG(LogTemp, Log, TEXT("SKill Two"));
+		if (EquippedSkills.IsValidIndex(1))
+		{
+			UseActiveSkill(EquippedSkills[1]);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("SkillSlot Two is Nothing."));
+		}
+	}
+}
+
+void APPCharacterBase::OnUseSkillSlot_Three(const FInputActionInstance& Instance)
+{
+	bool BoolValue = Instance.GetValue().Get<bool>();
+	if (BoolValue)
+	{
+		UE_LOG(LogTemp, Log, TEXT("SKill Three"));
+		if (EquippedSkills.IsValidIndex(2))
+		{
+			UseActiveSkill(EquippedSkills[2]);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("SkillSlot Three is Nothing."));
+		}
+	}
+}
+
+void APPCharacterBase::OnUseSkillSlot_Four(const FInputActionInstance& Instance)
+{
+	bool BoolValue = Instance.GetValue().Get<bool>();
+	if (BoolValue)
+	{
+		UE_LOG(LogTemp, Log, TEXT("SKill Four"));
+		if (EquippedSkills.IsValidIndex(3))
+		{
+			UseActiveSkill(EquippedSkills[3]);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("SkillSlot Four is Nothing."));
+		}
+	}
+}
+
 
 // Called to bind functionality to input
 void APPCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -152,6 +265,11 @@ void APPCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	auto EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
 
 	EnhancedInputComponent->BindAction(QuarterMoveAction, ETriggerEvent::Triggered, this, &APPCharacterBase::QuarterMove);
+	EnhancedInputComponent->BindAction(UseSkillSlotAction_One, ETriggerEvent::Triggered, this, &APPCharacterBase::OnUseSkillSlot_One);
+	EnhancedInputComponent->BindAction(UseSkillSlotAction_Two, ETriggerEvent::Triggered, this, &APPCharacterBase::OnUseSkillSlot_Two);
+	EnhancedInputComponent->BindAction(UseSkillSlotAction_Three, ETriggerEvent::Triggered, this, &APPCharacterBase::OnUseSkillSlot_Three);
+	EnhancedInputComponent->BindAction(UseSkillSlotAction_Four, ETriggerEvent::Triggered, this, &APPCharacterBase::OnUseSkillSlot_Four);
+	
 
 }
 

@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "GameFramework/Character.h"
-#include "Skill/PPProjectileSkill.h" // UPPProjectileSkill 정의
 #include "Skill/PPPlayerSkillType.h"       // EPlayerSkillType 정의
 #include "PPCharacterBase.generated.h"
 
@@ -52,24 +51,49 @@ protected:	// Input Section.
 	UPROPERTY(EditAnywhere, Category = CharacterControl, meta = (AllowPrivateAccess = "true"))
 	TMap<ECharacterControlType, class UPPCharacterControlData*> CharacterControlManager;
 
+	UPROPERTY()
+	TObjectPtr<class UInputAction> UseSkillSlotAction_One;
+	UPROPERTY()
+	TObjectPtr<class UInputAction> UseSkillSlotAction_Two;
+	UPROPERTY()
+	TObjectPtr<class UInputAction> UseSkillSlotAction_Three;
+	UPROPERTY()
+	TObjectPtr<class UInputAction> UseSkillSlotAction_Four;
+
+
+public:	// Input Section.
+
+	UFUNCTION()
+	void OnUseSkillSlot_One(const FInputActionInstance& Instance);
+	UFUNCTION()
+	void OnUseSkillSlot_Two(const FInputActionInstance& Instance);
+	UFUNCTION()
+	void OnUseSkillSlot_Three(const FInputActionInstance& Instance);
+	UFUNCTION()
+	void OnUseSkillSlot_Four(const FInputActionInstance& Instance);
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
 public:	// Skill Section.
 	// 캐릭터가 보유한 스킬들
 	UPROPERTY()
-	TMap<EPlayerSkillType, TObjectPtr<UPPSkillBase>> OwnedSkills;
+	TMap<EPlayerSkillType, TSubclassOf<class UPPSkillBase>> OwnedSkills;
+
+	UPROPERTY()
+	TArray<EPlayerSkillType> EquippedSkills;
 
 	// 스킬 클래스와 발사체 블루프린트를 설정하기 위한 UPROPERTY
 	UPROPERTY(EditDefaultsOnly, Category = "Skill")
-	TSubclassOf<UPPProjectileSkill> ProjectileSkillClass;
+	TSubclassOf<class UPPProjectileSkill> ProjectileSkillClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Skill")
 	TSubclassOf<class APPProjectileBase> ProjectileBPClass;
 
+
 	void UseActiveSkill(EPlayerSkillType SkillType);
 
-public:	
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+public:
 
 	virtual void SetCharacterControlData(const class UPPCharacterControlData* InCharacterControlData);
 

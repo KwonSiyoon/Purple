@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "Projectile/PPProjectileData.h"
+#include "Skill/PPPlayerSkillType.h"
 #include "PPGameSingleton.generated.h"
 
 /**
@@ -18,5 +20,8 @@ public:
 	UPPGameSingleton();
 
 	static UPPGameSingleton& Get();
+
+	TMap<EPlayerSkillType, FPPProjectileData> SkillDatas;
+
 
 };
