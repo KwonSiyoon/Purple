@@ -125,12 +125,29 @@ APPCharacterBase::APPCharacterBase()
 	EquippedSkills[2] = EPlayerSkillType::Fireball;
 	EquippedSkills[3] = EPlayerSkillType::Fireball;
 
+	CurrentHp = 100.0f;
+
 }
 
 float APPCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	if (CurrentHp > 0.0f)
+	{
+		CurrentHp -= DamageAmount;
+		UE_LOG(LogTemp, Log, TEXT("플레이어 %.1f 데미지 받음."), DamageAmount);
+	}
+	if (CurrentHp <= 0.0f)
+	{
+		SetDead();
+	}
+
 	return DamageAmount;
+}
+
+void APPCharacterBase::SetDead()
+{
+	UE_LOG(LogTemp, Log, TEXT("플레이어 사망."));
 }
 
 // Called when the game starts or when spawned
@@ -179,7 +196,7 @@ void APPCharacterBase::UseActiveSkill(EPlayerSkillType SkillType)
 	{
 		UPPProjectileSkill* SkillInstance = NewObject<UPPProjectileSkill>(this, OwnedSkills[SkillType]);
 		SkillInstance->Initialize(this);
-		SkillInstance->SetProjectileClass(APPProjectileBase::StaticClass());
+		SkillInstance->SetProjectileClass(APPProjectileBase::StaticClass(), SkillType);
 		if (SkillInstance)
 		{
 			SkillInstance->UseSkill();

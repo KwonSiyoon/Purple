@@ -28,6 +28,9 @@ protected:
 	// 애님 몽타주에서 제공하는 델리게이트와 파라미터 맞춤.
 	void AttackActionEnd(class UAnimMontage* TargetMontage, bool IsProperlyEnded);
 
+	virtual void SetDead();
+	void PlayDeadAnimation();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -55,5 +58,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> DeadMontage;
+
+	UPROPERTY(VisibleInstanceOnly, Category = Stat)
+	float MaxHp;
+
+	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat)
+	float CurrentHp;
 
 };

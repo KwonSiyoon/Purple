@@ -20,7 +20,7 @@ APPProjectileBase::APPProjectileBase()
     // 충돌 컴포넌트
     CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
     CollisionComp->InitSphereRadius(10.0f);
-    CollisionComp->SetCollisionProfileName("Projectile");
+    CollisionComp->SetCollisionProfileName("PlayerProjectile");
     CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &APPProjectileBase::OnSphereBeginOverlap);
     RootComponent = CollisionComp;
 
@@ -48,8 +48,10 @@ void APPProjectileBase::BeginPlay()
 void APPProjectileBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
     APPEnemyCharacterBase* EnemyPawn = Cast<APPEnemyCharacterBase>(OtherActor);
+    UE_LOG(LogTemp, Log, TEXT("Overlap 들어옴."));
     if (EnemyPawn)
     {
+        UE_LOG(LogTemp, Log, TEXT("Overlap 들어옴 -> Enemy와 접촉."));
         FDamageEvent DamageEvent;
 
         //EnemyPawn->TakeDamage(0.0f, DamageEvent, GetWorld()->GetPlayerControllerIterator)
@@ -68,7 +70,6 @@ void APPProjectileBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComp
         }
 
         Destroy(); // 1회성 탄환
-
     }
 }
 
@@ -81,7 +82,11 @@ void APPProjectileBase::InitProjectile(const FPPProjectileData& InData)
     // 속도 초기화
     if (ProjectileMovement)
     {
-        FVector Direction = GetActorForwardVector();
+        // 월드 기준 속도 적용
+        ProjectileMovement->bInitialVelocityInLocalSpace = false;
+
+        // 정확한 방향 적용 (SetActorRotation 이후 호출되므로 GetForwardVector가 정확해짐)
+        FVector Direction = GetActorForwardVector().GetSafeNormal();
         ProjectileMovement->Velocity = Direction * InData.Speed;
     }
 

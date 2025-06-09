@@ -5,7 +5,11 @@
 #include "CoreMinimal.h"
 #include "Skill/PPSkillBase.h"
 #include "Projectile/PPProjectileData.h"
+#include "PPPlayerSkillType.h"
 #include "PPProjectileSkill.generated.h"
+
+
+class APPProjectileBase;
 
 /**
  * 
@@ -18,7 +22,7 @@ class PURPLE_API UPPProjectileSkill : public UPPSkillBase
 public:
 	UPPProjectileSkill();
 
-    void SetProjectileClass(TSubclassOf<class APPProjectileBase> InClass) { ProjectileClass = InClass; }
+    void SetProjectileClass(TSubclassOf<APPProjectileBase> InClass, EPlayerSkillType InType);
     // 외부에서 스킬 레벨을 설정할 수 있도록 공개
     void SetSkillLevel(int32 InLevel) { SkillLevel = InLevel; }
 
@@ -26,13 +30,16 @@ public:
 
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "Projectile")
-    TSubclassOf<class APPProjectileBase> ProjectileClass;
+    TSubclassOf<APPProjectileBase> ProjectileClass;
 
     UPROPERTY(EditDefaultsOnly, Category = "Projectile")
     FVector MuzzleOffset = FVector(100.0f, 0.0f, 50.0f);
 
     UPROPERTY(EditDefaultsOnly, Category = "Projectile")
     TObjectPtr<UDataTable> ProjectileDataTable;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+    EPlayerSkillType Type = EPlayerSkillType::None;
 
     // 기본 발사체 개수
     UPROPERTY(EditDefaultsOnly, Category = "Projectile")

@@ -38,11 +38,23 @@ APPEnemyCharacterBase::APPEnemyCharacterBase()
 	/** Pawn is automatically possessed by an AI Controller whenever it is created. */
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
+	CurrentHp = 100.0f;
 }
 
 float APPEnemyCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	return 0.0f;
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	UE_LOG(LogTemp, Log, TEXT("Enemy -> 데미지 들어옴."));
+	if (CurrentHp > 0.0f)
+	{
+		CurrentHp -= DamageAmount;
+		UE_LOG(LogTemp, Log, TEXT("Enemy -> 데미지 %.1f 들어옴."), DamageAmount);
+	}
+	if (CurrentHp <= 0.0f)
+	{
+		SetDead();
+	}
+	return DamageAmount;
 }
 
 // Called when the game starts or when spawned
@@ -76,6 +88,48 @@ void APPEnemyCharacterBase::AttackActionEnd(UAnimMontage* TargetMontage, bool Is
 
 	// 전달 받은 델리게이트 실행.
 	OnAttackFinished.ExecuteIfBound();
+}
+
+void APPEnemyCharacterBase::SetDead()
+{
+	UE_LOG(LogTemp, Log, TEXT("Enemy -> SetDead."));
+	PlayDeadAnimation();
+	APPAIController* PPAIController = Cast<APPAIController>(GetController());
+	if (PPAIController)
+	{
+		PPAIController->StopAI();
+	}
+	// 타이머를 사용해 액터 제거.
+	FTimerHandle DeadTimerHandle;
+
+	// 타이머 설정.
+	GetWorld()->GetTimerManager().SetTimer(
+		DeadTimerHandle,
+		FTimerDelegate::CreateLambda([&]()
+			{
+				// 액터 제거.
+				Destroy();
+			}
+		),
+		1.0f,		// 타이머 설정 시간.
+		false);		// 반복 여부 설정(반복 안함).
+}
+
+void APPEnemyCharacterBase::PlayDeadAnimation()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	UE_LOG(LogTemp, Log, TEXT("Enemy -> PlayDeadAnimation."));
+
+	if (AnimInstance)
+	{
+		// 이미 재생중인 몽타주가 있다면, 모두 종료.
+		AnimInstance->StopAllMontages(0.0f);
+		UE_LOG(LogTemp, Log, TEXT("Enemy -> StopAllMontages."));
+
+		// 죽음 몽타주 재생.
+		const float PlayRate = 1.0f;
+		AnimInstance->Montage_Play(DeadMontage, PlayRate);
+	}
 }
 
 // Called every frame
@@ -156,7 +210,7 @@ void APPEnemyCharacterBase::AttackHitCheck()
 	if (HitDetected)
 	{
 		// 데미지 양.
-		const float AttackDamage = 10.0f;
+		const float AttackDamage = 1000.0f;
 		//const float AttackDamage = Stat->GetTotalStat().Attack;
 
 		// 데미지 이벤트.

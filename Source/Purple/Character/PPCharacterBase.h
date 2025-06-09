@@ -28,6 +28,8 @@ public:
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
+	virtual void SetDead();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -60,6 +62,13 @@ protected:	// Input Section.
 	UPROPERTY()
 	TObjectPtr<class UInputAction> UseSkillSlotAction_Four;
 
+protected:	// Stat Section.
+	UPROPERTY(VisibleInstanceOnly, Category = Stat)
+	float MaxHp;
+
+	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat)
+	float CurrentHp;
+	
 
 public:	// Input Section.
 
