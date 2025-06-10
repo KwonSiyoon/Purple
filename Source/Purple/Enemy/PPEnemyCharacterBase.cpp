@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "PPCollision.h"
+#include "Component/PPDropComponent.h"
 
 // Sets default values
 APPEnemyCharacterBase::APPEnemyCharacterBase()
@@ -38,7 +39,11 @@ APPEnemyCharacterBase::APPEnemyCharacterBase()
 	/** Pawn is automatically possessed by an AI Controller whenever it is created. */
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
+	DropComponent = CreateDefaultSubobject<UPPDropComponent>(TEXT("DropComponent"));
+
 	CurrentHp = 100.0f;
+	ExpRewardAmount = 100.0f;
+
 }
 
 float APPEnemyCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -99,6 +104,14 @@ void APPEnemyCharacterBase::SetDead()
 	{
 		PPAIController->StopAI();
 	}
+
+
+	AActor* Player = UGameplayStatics::GetPlayerPawn(this, 0);
+	if (DropComponent && Player)
+	{
+		DropComponent->SpawnExp(ExpRewardAmount, Player); // 적절한 경험치 양 사용
+	}
+
 	// 타이머를 사용해 액터 제거.
 	FTimerHandle DeadTimerHandle;
 

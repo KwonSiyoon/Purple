@@ -68,6 +68,10 @@ protected:	// Stat Section.
 
 	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat)
 	float CurrentHp;
+
+	float MaxExp;
+	float CurrentExp;
+	float CurrentLevel;
 	
 
 public:	// Input Section.

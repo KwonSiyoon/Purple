@@ -14,11 +14,12 @@ AExpOrbActor::AExpOrbActor()
 
     Collision = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
     RootComponent = Collision;
-    Collision->InitSphereRadius(30.0f);
-    Collision->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
+    Collision->InitSphereRadius(50.0f);
+    Collision->SetCollisionProfileName(TEXT("Collectible"));
 
     Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
     Mesh->SetupAttachment(Collision);
+    Mesh->SetCollisionProfileName(TEXT("NoCollision"));
 
     static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshRef(TEXT("/Engine/BasicShapes/Sphere"));
     if (MeshRef.Succeeded())
@@ -31,13 +32,14 @@ AExpOrbActor::AExpOrbActor()
     {
         Mesh->SetMaterial(0, MatRef.Object);
     }
+    Collision->OnComponentBeginOverlap.AddDynamic(this, &AExpOrbActor::OnOverlap);
+
 }
 
 void AExpOrbActor::BeginPlay()
 {
     Super::BeginPlay();
     StartLocation = GetActorLocation();
-    Collision->OnComponentBeginOverlap.AddDynamic(this, &AExpOrbActor::OnOverlap);
 
     UMaterialInterface* BaseMat = Mesh->GetMaterial(0);
     DynamicMaterial = Mesh->CreateAndSetMaterialInstanceDynamicFromMaterial(0, BaseMat);

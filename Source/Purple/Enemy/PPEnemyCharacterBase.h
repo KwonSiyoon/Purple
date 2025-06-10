@@ -65,4 +65,11 @@ protected:
 	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat)
 	float CurrentHp;
 
+
+	float ExpRewardAmount;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drop", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UPPDropComponent> DropComponent;
+
+
 };

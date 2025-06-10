@@ -29,20 +29,20 @@ protected:
 
 protected:
     UPROPERTY(VisibleAnywhere)
-    class USphereComponent* Collision;
+     TObjectPtr<class USphereComponent> Collision;
 
     UPROPERTY(VisibleAnywhere)
-    class UStaticMeshComponent* Mesh;
+    TObjectPtr<class UStaticMeshComponent> Mesh;
 
     UPROPERTY()
-    class UMaterialInstanceDynamic* DynamicMaterial;
+    TObjectPtr<class UMaterialInstanceDynamic> DynamicMaterial;
 
     FVector StartLocation;
     float AccumulatedTime = 0.0f;
     float ExpValue = 0.0f;
 
     UPROPERTY()
-    AActor* TargetToFollow = nullptr;
+    TObjectPtr<AActor> TargetToFollow = nullptr;
 
     UPROPERTY(EditDefaultsOnly, Category = "Visual")
     float FloatAmplitude = 20.0f;
