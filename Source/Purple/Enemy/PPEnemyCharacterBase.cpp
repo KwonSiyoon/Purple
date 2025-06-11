@@ -42,7 +42,7 @@ APPEnemyCharacterBase::APPEnemyCharacterBase()
 	DropComponent = CreateDefaultSubobject<UPPDropComponent>(TEXT("DropComponent"));
 
 	CurrentHp = 100.0f;
-	ExpRewardAmount = 100.0f;
+	ExpRewardAmount = 1000.0f;
 
 }
 
@@ -66,7 +66,8 @@ float APPEnemyCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& 
 void APPEnemyCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	ExpRewardAmount = 3000.0f;
+
 	APawn* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 
 	UE_LOG(LogTemp, Log, TEXT("%s"), *Player->GetName());

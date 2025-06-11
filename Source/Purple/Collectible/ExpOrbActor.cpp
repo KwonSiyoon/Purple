@@ -7,6 +7,7 @@
 #include "Materials/MaterialInterface.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Character/PPCharacterBase.h"
 
 AExpOrbActor::AExpOrbActor()
 {
@@ -73,10 +74,13 @@ void AExpOrbActor::Init(float InExpValue, AActor* TargetPlayer)
 void AExpOrbActor::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
     UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    if (OtherActor && OtherActor->ActorHasTag(FName("Player")))
+    APPCharacterBase* Player = Cast<APPCharacterBase>(OtherActor);
+    if (Player)
     {
         // TODO: 경험치 전달
         UE_LOG(LogTemp, Log, TEXT("Exp %.1f 흡수됨."), ExpValue);
+
+        Player->GetExp(ExpValue);
 
         // 파티클 효과 등 추가 가능
 

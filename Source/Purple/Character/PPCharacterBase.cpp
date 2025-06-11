@@ -126,7 +126,9 @@ APPCharacterBase::APPCharacterBase()
 	EquippedSkills[3] = EPlayerSkillType::Fireball;
 
 	CurrentHp = 100.0f;
-
+	CurrentExp = 0.0f;
+	MaxExp = 100.0f;
+	CurrentLevel = 1;
 }
 
 float APPCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -148,6 +150,27 @@ float APPCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 void APPCharacterBase::SetDead()
 {
 	UE_LOG(LogTemp, Log, TEXT("플레이어 사망."));
+}
+
+void APPCharacterBase::GetExp(float InValue)
+{
+	CurrentExp += InValue;
+	UE_LOG(LogTemp, Log, TEXT("EXP 흡수 -> CurrentLevel : %d || MaxExp : %.1f || CurrentExp : %.1f "), CurrentLevel, MaxExp, CurrentExp);
+
+	while (MaxExp <= CurrentExp)
+	{
+		CurrentExp -= MaxExp;
+		LevelUp();
+
+		UE_LOG(LogTemp, Log, TEXT("LevelUp -> CurrentLevel : %d || MaxExp : %.1f || CurrentExp : %.1f "), CurrentLevel, MaxExp, CurrentExp);
+	}
+}
+
+void APPCharacterBase::LevelUp()
+{
+	CurrentLevel++;
+	MaxExp *= 2;
+
 }
 
 // Called when the game starts or when spawned

@@ -30,6 +30,9 @@ public:
 
 	virtual void SetDead();
 
+	virtual void GetExp(float InValue);
+	virtual void LevelUp();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -71,7 +74,7 @@ protected:	// Stat Section.
 
 	float MaxExp;
 	float CurrentExp;
-	float CurrentLevel;
+	int32 CurrentLevel;
 	
 
 public:	// Input Section.

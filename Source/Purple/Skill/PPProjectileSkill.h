@@ -54,5 +54,6 @@ protected:
 
     int32 GetLevelBasedProjectileCount() const;
 
+    float Cooldown;
 
 };

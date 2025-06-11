@@ -39,7 +39,7 @@ void UPPProjectileSkill::UseSkill()
 
         FVector BaseDirection = FVector(FMath::Sin(Rad), -FMath::Cos(Rad), 0.0f); // 월드 기준 -Y 방향 시작
         FVector SpawnLocation = CenterLocation + BaseDirection * 50.0f + FVector(0.0f, 0.0f, MuzzleOffset.Z);
-        FRotator SpawnRotation = FRotationMatrix::MakeFromX(BaseDirection).Rotator(); // ✅ 정확한 회전
+        FRotator SpawnRotation = FRotationMatrix::MakeFromX(BaseDirection).Rotator(); // 정확한 회전
 
         FTransform SpawnTransform = FTransform(SpawnRotation, SpawnLocation);
 
