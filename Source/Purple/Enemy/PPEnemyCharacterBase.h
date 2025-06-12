@@ -71,5 +71,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drop", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UPPDropComponent> DropComponent;
 
+protected:
+	/** RVO 회피 반경(동일 적군과 일정 거리 유지) */
+	UPROPERTY(EditDefaultsOnly, Category = "AI|Avoidance", meta = (ClampMin = "50.0"))
+	float AvoidanceRadius = 150.f;    // 기본값: 150 cm
 
 };

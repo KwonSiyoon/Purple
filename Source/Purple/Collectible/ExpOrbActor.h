@@ -40,6 +40,7 @@ protected:
     FVector StartLocation;
     float AccumulatedTime = 0.0f;
     float ExpValue = 0.0f;
+    bool bIsAbsorbing = false;
 
     UPROPERTY()
     TObjectPtr<AActor> TargetToFollow = nullptr;
@@ -51,7 +52,7 @@ protected:
     float FloatFrequency = 2.0f;
 
     UPROPERTY(EditDefaultsOnly, Category = "Movement")
-    float AbsorbDistance = 150.0f;
+    float AbsorbDistance = 500.0f;
 
     UPROPERTY(EditDefaultsOnly, Category = "Movement")
     float AbsorbSpeed = 500.0f;

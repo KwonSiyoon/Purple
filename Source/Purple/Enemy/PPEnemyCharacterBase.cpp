@@ -44,6 +44,11 @@ APPEnemyCharacterBase::APPEnemyCharacterBase()
 	CurrentHp = 100.0f;
 	ExpRewardAmount = 1000.0f;
 
+	// --- RVO 회피 설정 : 적들이 서로 겹치지 않도록 함.
+	GetCharacterMovement()->bUseRVOAvoidance = true;
+	GetCharacterMovement()->AvoidanceConsiderationRadius = AvoidanceRadius;
+	GetCharacterMovement()->AvoidanceWeight = 0.6f;   // 서로 피해가는 힘
+
 }
 
 float APPEnemyCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -100,6 +105,7 @@ void APPEnemyCharacterBase::SetDead()
 {
 	UE_LOG(LogTemp, Log, TEXT("Enemy -> SetDead."));
 	PlayDeadAnimation();
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	APPAIController* PPAIController = Cast<APPAIController>(GetController());
 	if (PPAIController)
 	{

@@ -35,4 +35,9 @@ private:	// Data Section.
 	UPROPERTY()
 	TObjectPtr<class UBehaviorTree> BTAsset;
 
+private:
+	/** Crowd Following Component – AI 간 충돌 회피 전용 */
+	UPROPERTY()
+	TObjectPtr<class UCrowdFollowingComponent> CrowdFollowComp;
+
 };

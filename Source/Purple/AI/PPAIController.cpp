@@ -5,6 +5,9 @@
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Navigation/CrowdFollowingComponent.h"   // Crowd AI
+#include "GameFramework/Character.h"
+
 
 APPAIController::APPAIController()
 {
@@ -21,6 +24,10 @@ APPAIController::APPAIController()
 	{
 		BTAsset = BTAssetRef.Object;
 	}
+
+	// CrowdFollowingComponent를 생성해 PathFollowing을 교체.
+	CrowdFollowComp = CreateDefaultSubobject<UCrowdFollowingComponent>(TEXT("CrowdFollowingComponent"));
+
 }
 
 void APPAIController::RunAI()

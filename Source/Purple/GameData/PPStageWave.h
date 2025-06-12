@@ -9,8 +9,15 @@ struct FPPStageWave : public FTableRowBase
 {
     GENERATED_BODY()
 
+public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    int32 Time;  // 웨이브 발생 시간
+    float StartTime = 0.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    float EndTime = 0.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    bool bLoop = true;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSoftClassPtr<class APPEnemyCharacterBase> EnemyBlueprint;  // 어떤 적을 소환할지

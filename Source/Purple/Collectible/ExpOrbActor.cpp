@@ -53,15 +53,26 @@ void AExpOrbActor::Tick(float DeltaTime)
 
     AccumulatedTime += DeltaTime;
 
-    // 진동
-    FVector Offset = FVector(0.0f, 0.0f, FMath::Sin(AccumulatedTime * FloatFrequency) * FloatAmplitude);
-    SetActorLocation(StartLocation + Offset);
-
-    // 흡수 이동
-    if (TargetToFollow && FVector::Dist(GetActorLocation(), TargetToFollow->GetActorLocation()) < AbsorbDistance)
+    if (!bIsAbsorbing)
     {
-        FVector Dir = (TargetToFollow->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-        SetActorLocation(GetActorLocation() + Dir * AbsorbSpeed * DeltaTime);
+        // 진동
+        FVector Offset = FVector(0.0f, 0.0f, FMath::Sin(AccumulatedTime * FloatFrequency) * FloatAmplitude);
+        SetActorLocation(StartLocation + Offset);
+
+        // 흡수 시작 조건 확인
+        if (TargetToFollow && FVector::Dist(GetActorLocation(), TargetToFollow->GetActorLocation()) < AbsorbDistance)
+        {
+            bIsAbsorbing = true;  // 진동 멈추고 흡수 시작
+        }
+    }
+    else
+    {
+        // 흡수 이동
+        if (TargetToFollow)
+        {
+            FVector Dir = (TargetToFollow->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+            SetActorLocation(GetActorLocation() + Dir * AbsorbSpeed * DeltaTime);
+        }
     }
 }
 
@@ -69,6 +80,9 @@ void AExpOrbActor::Init(float InExpValue, AActor* TargetPlayer)
 {
     ExpValue = InExpValue;
     TargetToFollow = TargetPlayer;
+
+    UE_LOG(LogTemp, Log, TEXT("ExpOrb Init 완료 - Exp: %.1f, Target: %s"), ExpValue, *GetNameSafe(TargetToFollow));
+
 }
 
 void AExpOrbActor::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
