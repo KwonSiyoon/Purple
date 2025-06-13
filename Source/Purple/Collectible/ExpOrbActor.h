@@ -52,9 +52,9 @@ protected:
     float FloatFrequency = 2.0f;
 
     UPROPERTY(EditDefaultsOnly, Category = "Movement")
-    float AbsorbDistance = 500.0f;
+    float AbsorbDistance = 200.0f;
 
     UPROPERTY(EditDefaultsOnly, Category = "Movement")
-    float AbsorbSpeed = 500.0f;
+    float AbsorbSpeed = 600.0f;
 
 };

@@ -86,9 +86,6 @@ APPCharacterBase::APPCharacterBase()
 		UseSkillSlotAction_Four = UseSkillSlotAction_FourRef.Object;
 	}
 
-
-
-
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;

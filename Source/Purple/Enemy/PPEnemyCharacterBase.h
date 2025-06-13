@@ -24,6 +24,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void PostInitializeComponents() override;
+
 	// 콤보가 종료될 때 호출될 함수.
 	// 애님 몽타주에서 제공하는 델리게이트와 파라미터 맞춤.
 	void AttackActionEnd(class UAnimMontage* TargetMontage, bool IsProperlyEnded);
@@ -37,7 +38,6 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 
 	// Inherited via IPPEnemyAIInterface
 	float GetAIAttackRange() override;
@@ -72,8 +72,8 @@ protected:
 	TObjectPtr<class UPPDropComponent> DropComponent;
 
 protected:
-	/** RVO 회피 반경(동일 적군과 일정 거리 유지) */
+	// RVO 회피 반경(동일 적군과 일정 거리 유지)
 	UPROPERTY(EditDefaultsOnly, Category = "AI|Avoidance", meta = (ClampMin = "50.0"))
-	float AvoidanceRadius = 150.f;    // 기본값: 150 cm
+	float AvoidanceRadius = 100.f;    // 기본값
 
 };
