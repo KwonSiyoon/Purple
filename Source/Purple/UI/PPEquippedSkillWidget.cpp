@@ -3,6 +3,7 @@
 
 #include "UI/PPEquippedSkillWidget.h"
 #include "Components/ProgressBar.h"
+#include "Styling/SlateTypes.h"
 
 UPPEquippedSkillWidget::UPPEquippedSkillWidget(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -23,22 +24,33 @@ void UPPEquippedSkillWidget::AssignSkillToSlot(int32 Index, EPlayerSkillType Ski
 {
 	if (!SkillSlots.IsValidIndex(Index)) return;
 
-	FEquippedSkillSlotUI& Slot = SkillSlots[Index];
-	Slot.AssignedSkill = SkillType;
-	Slot.Icon = Icon;
+	FEquippedSkillSlotUI& SlotUI = SkillSlots[Index];
+	SlotUI.AssignedSkill = SkillType;
+	SlotUI.Icon = Icon;
 
-	if (Slot.CooldownBar && Icon)
+	if (SlotUI.CooldownBar && Icon)
 	{
 		FSlateBrush Brush;
 		Brush.SetResourceObject(Icon);
-		Brush.ImageSize = FVector2D(64.f, 64.f);
-		Slot.CooldownBar->WidgetStyle.BackgroundImage = Brush;
+		//Brush.ImageSize = FVector2D(64.f, 64.f);
+		FProgressBarStyle ProgressBarStyle = SlotUI.CooldownBar->GetWidgetStyle();
+		ProgressBarStyle.SetBackgroundImage(Brush);
+		SlotUI.CooldownBar->SetWidgetStyle(ProgressBarStyle);
 	}
 }
 
 void UPPEquippedSkillWidget::UpdateCooldown(EPlayerSkillType SkillType, float Ratio)
 {
 	int32 Index = FindSlotBySkillType(SkillType);
+	if (SkillSlots.IsValidIndex(Index) && SkillSlots[Index].CooldownBar)
+	{
+		SkillSlots[Index].CooldownBar->SetPercent(Ratio);
+		SkillSlots[Index].Cooldown = Ratio;
+	}
+}
+
+void UPPEquippedSkillWidget::UpdateCooldown(int32 Index, float Ratio)
+{
 	if (SkillSlots.IsValidIndex(Index) && SkillSlots[Index].CooldownBar)
 	{
 		SkillSlots[Index].CooldownBar->SetPercent(Ratio);

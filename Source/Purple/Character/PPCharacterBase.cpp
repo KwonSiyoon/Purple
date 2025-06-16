@@ -114,6 +114,8 @@ APPCharacterBase::APPCharacterBase()
 	Camera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	CurrentCharacterControlType = ECharacterControlType::Quarter;
+
+	// @ToDo : 스킬획득 처리 따로 해야함.
 	ProjectileSkillClass = UPPProjectileSkill::StaticClass();
 	OwnedSkills.Add(EPlayerSkillType::Fireball, UPPProjectileSkill::StaticClass());
 	EquippedSkills.SetNum(4);

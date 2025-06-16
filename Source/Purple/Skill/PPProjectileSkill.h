@@ -43,7 +43,7 @@ protected:
 
     // 기본 발사체 개수
     UPROPERTY(EditDefaultsOnly, Category = "Projectile")
-    int32 BaseProjectileCount = 3;
+    int32 BaseProjectileCount = 5;
 
     // 스킬 레벨에 따른 추가 발사체 수
     UPROPERTY(EditDefaultsOnly, Category = "Projectile")

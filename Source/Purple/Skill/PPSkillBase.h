@@ -19,13 +19,24 @@ public:
 	virtual void Initialize(class APPCharacterBase* InOwner) { OwnerCharacter = InOwner; }
 
 	UFUNCTION(BlueprintCallable)
+	bool TryUseSkill();
+
+	bool CanUseSkill() const;
+
+	float GetCooldownRatio() const;
+
+	UFUNCTION(BlueprintCallable)
 	virtual void UseSkill();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
 	EPlayerSkillType SkillType;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
+	float Cooldown = 0.0f;
+
 protected:
 	UPROPERTY()
 	TObjectPtr<class APPCharacterBase> OwnerCharacter;
 
+	float LastUsedTime = -FLT_MAX;
 };

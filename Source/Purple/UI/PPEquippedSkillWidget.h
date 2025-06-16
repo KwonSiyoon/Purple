@@ -15,7 +15,7 @@ struct FEquippedSkillSlotUI
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UProgressBar> CooldownBar;
+	TObjectPtr<class UProgressBar> CooldownBar;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UTexture2D> Icon;
@@ -51,20 +51,11 @@ public:
 
 	// 쿨타임 갱신 
 	void UpdateCooldown(EPlayerSkillType SkillType, float Ratio);
+	void UpdateCooldown(int32 Index, float Ratio);
 
 protected:
 	virtual void NativeConstruct() override;
 
 
-
-protected:
-	/*UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UProgressBar> Skill_1;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UProgressBar> Skill_2;*/
-
-	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill UI")
-	TArray<FEquippedSkillSlotUI> SkillSlots;*/
 
 };

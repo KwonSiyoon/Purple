@@ -41,7 +41,7 @@ public:
     TSoftClassPtr<class APPProjectileBase> ProjectileClass;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TObjectPtr<UNiagaraSystem> SkillEffect;
+    TObjectPtr<class UNiagaraSystem> SkillEffect;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TObjectPtr<UTexture2D> Icon;
