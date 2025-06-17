@@ -128,21 +128,18 @@ FVector UPPWaveSpawnManager::CalcSpawnPos(const FPPSpawnPattern& Pattern, int32 
 	case ESpawnPatternType::RearAttack:
 	{
 		const FVector Backward = Player ? -Player->GetActorForwardVector() : FVector::ForwardVector;
-		UE_LOG(LogTemp, Log, TEXT("WaveManager RearAttack 패턴."));
 		return Center + Backward * Pattern.Radius;
 	}
 	case ESpawnPatternType::FixedZone:
 	{
 		if (Pattern.FixedPoints.IsValidIndex(IterIdx))
 		{
-			UE_LOG(LogTemp, Log, TEXT("WaveManager FixedZone 패턴."));
 			return Pattern.FixedPoints[IterIdx] + Center;
 		}
 		break;
 	}
 	case ESpawnPatternType::OffscreenRandom:
 	{
-		UE_LOG(LogTemp, Log, TEXT("WaveManager OffscreenRandom 패턴."));
 
 		// 플레이어 기준 방향 설정
 		FRandomStream Stream(FDateTime::Now().GetTicks() + IterIdx);
@@ -171,15 +168,11 @@ FVector UPPWaveSpawnManager::CalcSpawnPos(const FPPSpawnPattern& Pattern, int32 
 
 void UPPWaveSpawnManager::SpawnEnemy(TSubclassOf<APPEnemyCharacterBase> EnemyClass, const FVector& SpawnLocation, bool bIsElite)
 {
-	UE_LOG(LogTemp, Log, TEXT("WaveManager SpawnEnemy 시도."));
 	if (!EnemyClass)
 	{
 		UE_LOG(LogTemp, Error, TEXT("SpawnEnemy - EnemyClass is NULL!"));
 		return;
 	}
-
-	UE_LOG(LogTemp, Log, TEXT("WaveManager EnemyClass 가져옴."));
-
 
 	FActorSpawnParameters Params;
 	Params.Owner = GetOwner();

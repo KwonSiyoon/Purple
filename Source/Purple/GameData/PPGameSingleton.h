@@ -6,6 +6,7 @@
 #include "UObject/NoExportTypes.h"
 #include "Projectile/PPProjectileData.h"
 #include "Skill/PPPlayerSkillType.h"
+#include "Skill/PPSkillData.h"
 #include "PPGameSingleton.generated.h"
 
 /**
@@ -22,6 +23,12 @@ public:
 	static UPPGameSingleton& Get();
 
 	TMap<EPlayerSkillType, FPPProjectileData> SkillDatas;
+
+	UPROPERTY()
+	TObjectPtr<class UPPSkillDataManager> SkillDataManager;
+
+	UFUNCTION(BlueprintCallable)
+	FPPSkillData GetSkillData(EPlayerSkillType SkillType, int32 Level) const;
 
 
 };

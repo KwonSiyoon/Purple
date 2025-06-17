@@ -54,11 +54,9 @@ APPEnemyCharacterBase::APPEnemyCharacterBase()
 float APPEnemyCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	UE_LOG(LogTemp, Log, TEXT("Enemy -> 데미지 들어옴."));
 	if (CurrentHp > 0.0f)
 	{
 		CurrentHp -= DamageAmount;
-		UE_LOG(LogTemp, Log, TEXT("Enemy -> 데미지 %.1f 들어옴."), DamageAmount);
 	}
 	if (CurrentHp <= 0.0f)
 	{
@@ -75,13 +73,10 @@ void APPEnemyCharacterBase::BeginPlay()
 
 	APawn* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 
-	UE_LOG(LogTemp, Log, TEXT("%s"), *Player->GetName());
-
 	APPAIController* AIController = Cast<APPAIController>(GetController());
 	if (AIController)
 	{
 		AIController->GetBlackboardComponent()->SetValueAsObject("Target", Player);
-		UE_LOG(LogTemp, Log, TEXT("%s"), *AIController->GetName());
 	}
 
 }
@@ -103,7 +98,6 @@ void APPEnemyCharacterBase::AttackActionEnd(UAnimMontage* TargetMontage, bool Is
 
 void APPEnemyCharacterBase::SetDead()
 {
-	UE_LOG(LogTemp, Log, TEXT("Enemy -> SetDead."));
 	PlayDeadAnimation();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	APPAIController* PPAIController = Cast<APPAIController>(GetController());
@@ -138,13 +132,11 @@ void APPEnemyCharacterBase::SetDead()
 void APPEnemyCharacterBase::PlayDeadAnimation()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	UE_LOG(LogTemp, Log, TEXT("Enemy -> PlayDeadAnimation."));
 
 	if (AnimInstance)
 	{
 		// 이미 재생중인 몽타주가 있다면, 모두 종료.
 		AnimInstance->StopAllMontages(0.0f);
-		UE_LOG(LogTemp, Log, TEXT("Enemy -> StopAllMontages."));
 
 		// 죽음 몽타주 재생.
 		const float PlayRate = 1.0f;

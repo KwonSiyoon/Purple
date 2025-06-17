@@ -15,6 +15,15 @@ UPPEquippedSkillWidget* UPPHUDWidget::GetEquippedSkillWidget()
 	return EquippedSkillWidget;
 }
 
+void UPPHUDWidget::UpdateSkillCooldown(EPlayerSkillType SkillType, float Ratio)
+{
+	if (EquippedSkillWidget)
+	{
+		EquippedSkillWidget->UpdateCooldown(SkillType, Ratio);
+	}
+}
+
+
 void UPPHUDWidget::NativeConstruct()
 {
 	Super::NativeConstruct();

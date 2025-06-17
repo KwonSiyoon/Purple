@@ -48,10 +48,8 @@ void APPProjectileBase::BeginPlay()
 void APPProjectileBase::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
     APPEnemyCharacterBase* EnemyPawn = Cast<APPEnemyCharacterBase>(OtherActor);
-    UE_LOG(LogTemp, Log, TEXT("Overlap 들어옴."));
     if (EnemyPawn)
     {
-        UE_LOG(LogTemp, Log, TEXT("Overlap 들어옴 -> Enemy와 접촉."));
         FDamageEvent DamageEvent;
 
         //EnemyPawn->TakeDamage(0.0f, DamageEvent, GetWorld()->GetPlayerControllerIterator)

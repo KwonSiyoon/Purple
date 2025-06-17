@@ -23,6 +23,8 @@ public:
 	APPPlayerController();
 	virtual void BeginPlay() override;
 	void AcquireSkill(EPlayerSkillType SkillType, int32 SlotIndex);
+	class  UPPHUDWidget* GetHUDWidget() { return PPHUDWidget; }
+	/*void UpdateCoolDown();*/
 
 protected:	// HUD Section.
 	// 생성할 위젯의 클래스 정보.

@@ -16,13 +16,11 @@ UPPDropComponent::UPPDropComponent()
     if (ExpOrbRef.Succeeded())
     {
         ExpOrbClass = ExpOrbRef.Class;
-        UE_LOG(LogTemp, Log, TEXT("ExpOrbRef 존재."));
     }
 }
 
 void UPPDropComponent::SpawnExp(float ExpValue, AActor* TargetPlayer)
 {
-    UE_LOG(LogTemp, Log, TEXT("UPPDropComponent - SpawnExp 들어옴."));
     if (!ExpOrbClass) return;
 
     FVector Origin = GetOwner()->GetActorLocation();

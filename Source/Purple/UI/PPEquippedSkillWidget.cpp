@@ -4,6 +4,9 @@
 #include "UI/PPEquippedSkillWidget.h"
 #include "Components/ProgressBar.h"
 #include "Styling/SlateTypes.h"
+#include "Character/PPCharacterBase.h"
+#include "Skill/PPSkillBase.h"
+#include "Skill/PPSkillData.h"
 
 UPPEquippedSkillWidget::UPPEquippedSkillWidget(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -27,16 +30,31 @@ void UPPEquippedSkillWidget::AssignSkillToSlot(int32 Index, EPlayerSkillType Ski
 	FEquippedSkillSlotUI& SlotUI = SkillSlots[Index];
 	SlotUI.AssignedSkill = SkillType;
 	SlotUI.Icon = Icon;
-
+	UE_LOG(LogTemp, Log, TEXT("AssignSkillToSlot 들어옴."));
+	FSlateBrush Brush;
 	if (SlotUI.CooldownBar && Icon)
 	{
-		FSlateBrush Brush;
+		
 		Brush.SetResourceObject(Icon);
 		//Brush.ImageSize = FVector2D(64.f, 64.f);
 		FProgressBarStyle ProgressBarStyle = SlotUI.CooldownBar->GetWidgetStyle();
 		ProgressBarStyle.SetBackgroundImage(Brush);
 		SlotUI.CooldownBar->SetWidgetStyle(ProgressBarStyle);
+		UE_LOG(LogTemp, Log, TEXT("SkillData 등록."));
+
 	}
+	else if(SlotUI.CooldownBar && !Icon)
+	{
+		FProgressBarStyle ProgressBarStyle = SlotUI.CooldownBar->GetWidgetStyle();
+		ProgressBarStyle.SetBackgroundImage(Brush);
+		SlotUI.CooldownBar->SetWidgetStyle(ProgressBarStyle);
+		UE_LOG(LogTemp, Log, TEXT("SkillData 등록."));
+	}
+}
+
+void UPPEquippedSkillWidget::AssignSkillToSlot(int32 Index, FPPSkillData InSkillData)
+{
+
 }
 
 void UPPEquippedSkillWidget::UpdateCooldown(EPlayerSkillType SkillType, float Ratio)
@@ -67,9 +85,37 @@ void UPPEquippedSkillWidget::NativeConstruct()
 	SkillSlots[0].CooldownBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("Skill_01")));
 	SkillSlots[1].CooldownBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("Skill_02")));
 
+
 	/*Skill_1 = Cast<UProgressBar>(GetWidgetFromName(TEXT("Skill_01")));
 	Skill_2 = Cast<UProgressBar>(GetWidgetFromName(TEXT("Skill_02")));*/
 	
+}
+
+void UPPEquippedSkillWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	for (int32 i = 0; i < SkillSlots.Num(); ++i)
+	{
+		if (SkillSlots[i].AssignedSkill == EPlayerSkillType::Empty)
+			continue;
+
+		if (APlayerController* PC = GetOwningPlayer())
+		{
+			if (const ACharacter* Char = Cast<ACharacter>(PC->GetPawn()))
+			{
+				if (const APPCharacterBase* Player = Cast<APPCharacterBase>(Char))
+				{
+					const TObjectPtr<UPPSkillBase>* Found = Player->GetSkillByType(SkillSlots[i].AssignedSkill);
+					if (Found && *Found)
+					{
+						const float Ratio = (*Found)->GetCooldownRatio();
+						UpdateCooldown(i, Ratio);
+					}
+				}
+			}
+		}
+	}
 }
 
 

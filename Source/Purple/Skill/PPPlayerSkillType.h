@@ -5,7 +5,7 @@
 UENUM(BlueprintType)
 enum class EPlayerSkillType : uint8
 {
-    None       UMETA(DisplayName = "None"),
+    Empty      UMETA(DisplayName = "Empty"),
     Fireball   UMETA(DisplayName = "Fireball"),
     Iceball    UMETA(DisplayName = "Iceball"),
     Heal       UMETA(DisplayName = "Heal"),

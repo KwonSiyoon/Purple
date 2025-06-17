@@ -21,7 +21,7 @@ public:
 	TObjectPtr<UTexture2D> Icon;
 
 	/** 할당된 스킬 타입 */
-	EPlayerSkillType AssignedSkill = EPlayerSkillType::None;
+	EPlayerSkillType AssignedSkill = EPlayerSkillType::Empty;
 
 	/** 현재 쿨타임 */
 	float Cooldown = 0.f;
@@ -48,6 +48,7 @@ public:
 
 	// 스킬 획득 시 슬롯에 할당 
 	void AssignSkillToSlot(int32 Index, EPlayerSkillType SkillType, UTexture2D* Icon);
+	void AssignSkillToSlot(int32 Index, struct FPPSkillData InSkillData);
 
 	// 쿨타임 갱신 
 	void UpdateCooldown(EPlayerSkillType SkillType, float Ratio);
@@ -55,6 +56,7 @@ public:
 
 protected:
 	virtual void NativeConstruct() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 
 

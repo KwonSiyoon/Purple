@@ -41,18 +41,25 @@ void APPPlayerController::BeginPlay()
 		PPHUDWidget->AddToViewport();
 	}
 
+	//AcquireSkill(EPlayerSkillType::Empty, 0);
+
 }
 
 void APPPlayerController::AcquireSkill(EPlayerSkillType SkillType, int32 SlotIndex = 0)
 {
 	if (!SkillDataTable || !PPHUDWidget || !PPHUDWidget->GetEquippedSkillWidget()) return;
 
-	const FName RowName = *UEnum::GetValueAsString(SkillType).RightChop(19); // "EPlayerSkillType::" 제거
+	const FString EnumString = StaticEnum<EPlayerSkillType>()->GetNameStringByValue((int64)SkillType); // "EPlayerSkillType::Fireball"
+	const FString RowString = EnumString.Replace(TEXT("EPlayerSkillType::"), TEXT("")); // "Fireball"
+	const FName RowName = FName(*RowString);
 	const FPPSkillData* SkillData = SkillDataTable->FindRow<FPPSkillData>(RowName, TEXT("AssignSkill"));
+
+	
 
 	if (SkillData)
 	{
 		PPHUDWidget->GetEquippedSkillWidget()->AssignSkillToSlot(SlotIndex, SkillType, SkillData->Icon);
+		UE_LOG(LogTemp, Log, TEXT("SkillData 가져옴."));
 	}
 
 	//// 스킬 획득 시

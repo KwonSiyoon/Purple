@@ -2,6 +2,7 @@
 
 
 #include "GameData/PPGameSingleton.h"
+#include "Skill/PPSkillDataManager.h"
 
 UPPGameSingleton::UPPGameSingleton()
 {
@@ -41,6 +42,14 @@ UPPGameSingleton::UPPGameSingleton()
 		
 	}
 
+	static ConstructorHelpers::FObjectFinder<UDataTable> SkillDataRef(TEXT("/Game/.../SkillDataTable.SkillDataTable"));
+	if (SkillDataRef.Succeeded())
+	{
+		SkillDataManager = NewObject<UPPSkillDataManager>(this);
+		SkillDataManager->Initialize(SkillDataRef.Object);
+	}
+
+
 }
 
 UPPGameSingleton& UPPGameSingleton::Get()
@@ -55,4 +64,13 @@ UPPGameSingleton& UPPGameSingleton::Get()
 	UE_LOG(LogTemp, Error, TEXT("Invalid Game Singleton."));
 
 	return *NewObject<UPPGameSingleton>();
+}
+
+FPPSkillData UPPGameSingleton::GetSkillData(EPlayerSkillType SkillType, int32 Level) const
+{
+	if (SkillDataManager)
+	{
+		return SkillDataManager->GetSkillData(SkillType, Level);
+	}
+	return FPPSkillData();
 }

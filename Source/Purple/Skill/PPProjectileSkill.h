@@ -39,7 +39,7 @@ protected:
     TObjectPtr<UDataTable> ProjectileDataTable;
 
     UPROPERTY(EditDefaultsOnly, Category = "Projectile")
-    EPlayerSkillType Type = EPlayerSkillType::None;
+    EPlayerSkillType Type = EPlayerSkillType::Empty;
 
     // 기본 발사체 개수
     UPROPERTY(EditDefaultsOnly, Category = "Projectile")

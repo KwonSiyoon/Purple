@@ -15,6 +15,8 @@
 #include "Projectile/PPProjectileBase.h"
 #include "Projectile/PPProjectileData.h"
 #include "PPCollision.h"
+#include "UI/PPHUDWidget.h"
+#include "Player/PPPlayerController.h"
 
 // Sets default values
 APPCharacterBase::APPCharacterBase()
@@ -115,14 +117,7 @@ APPCharacterBase::APPCharacterBase()
 
 	CurrentCharacterControlType = ECharacterControlType::Quarter;
 
-	// @ToDo : 스킬획득 처리 따로 해야함.
-	ProjectileSkillClass = UPPProjectileSkill::StaticClass();
-	OwnedSkills.Add(EPlayerSkillType::Fireball, UPPProjectileSkill::StaticClass());
-	EquippedSkills.SetNum(4);
-	EquippedSkills[0] = EPlayerSkillType::Fireball;
-	EquippedSkills[1] = EPlayerSkillType::Fireball;
-	EquippedSkills[2] = EPlayerSkillType::Fireball;
-	EquippedSkills[3] = EPlayerSkillType::Fireball;
+	
 
 	CurrentHp = 100.0f;
 	CurrentExp = 0.0f;
@@ -136,7 +131,7 @@ float APPCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	if (CurrentHp > 0.0f)
 	{
 		CurrentHp -= DamageAmount;
-		UE_LOG(LogTemp, Log, TEXT("플레이어 %.1f 데미지 받음."), DamageAmount);
+		//UE_LOG(LogTemp, Log, TEXT("플레이어 %.1f 데미지 받음."), DamageAmount);
 	}
 	if (CurrentHp <= 0.0f)
 	{
@@ -146,22 +141,29 @@ float APPCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	return DamageAmount;
 }
 
+void APPCharacterBase::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	PlayerController = Cast<APPPlayerController>(NewController);
+}
+
 void APPCharacterBase::SetDead()
 {
-	UE_LOG(LogTemp, Log, TEXT("플레이어 사망."));
+	//UE_LOG(LogTemp, Log, TEXT("플레이어 사망."));
 }
 
 void APPCharacterBase::GetExp(float InValue)
 {
 	CurrentExp += InValue;
-	UE_LOG(LogTemp, Log, TEXT("EXP 흡수 -> CurrentLevel : %d || MaxExp : %.1f || CurrentExp : %.1f "), CurrentLevel, MaxExp, CurrentExp);
+	/*UE_LOG(LogTemp, Log, TEXT("EXP 흡수 -> CurrentLevel : %d || MaxExp : %.1f || CurrentExp : %.1f "), CurrentLevel, MaxExp, CurrentExp);*/
 
 	while (MaxExp <= CurrentExp)
 	{
 		CurrentExp -= MaxExp;
 		LevelUp();
 
-		UE_LOG(LogTemp, Log, TEXT("LevelUp -> CurrentLevel : %d || MaxExp : %.1f || CurrentExp : %.1f "), CurrentLevel, MaxExp, CurrentExp);
+		/*UE_LOG(LogTemp, Log, TEXT("LevelUp -> CurrentLevel : %d || MaxExp : %.1f || CurrentExp : %.1f "), CurrentLevel, MaxExp, CurrentExp);*/
 	}
 }
 
@@ -178,6 +180,19 @@ void APPCharacterBase::BeginPlay()
 	Super::BeginPlay();
 	
 	SetCharacterControl(CurrentCharacterControlType);
+
+	// @ToDo : 스킬획득 처리 따로 해야함.
+	ProjectileSkillClass = UPPProjectileSkill::StaticClass();
+	ProjectileSkill = NewObject<UPPProjectileSkill>(this, ProjectileSkillClass);
+	ProjectileSkill->Initialize(this);
+	ProjectileSkill->SetProjectileClass(APPProjectileBase::StaticClass(), EPlayerSkillType::Fireball);
+	OwnedSkills.Add(EPlayerSkillType::Fireball, ProjectileSkill);
+	EquippedSkills.SetNum(4);
+	/*EquippedSkills[0] = EPlayerSkillType::Fireball;
+	EquippedSkills[1] = EPlayerSkillType::Fireball;
+	EquippedSkills[2] = EPlayerSkillType::Fireball;
+	EquippedSkills[3] = EPlayerSkillType::Fireball;*/
+	PlayerController->AcquireSkill(EPlayerSkillType::Fireball, 0);
 
 	//GetWorld()->SpawnActor<APPEnemyCharacterBase>(APPEnemyCharacterBase::StaticClass(), GetActorLocation() + FVector::ForwardVector * 100.0f, FRotator::ZeroRotator);
 }
@@ -214,16 +229,33 @@ void APPCharacterBase::QuarterMove(const FInputActionValue& Value)
 
 void APPCharacterBase::UseActiveSkill(EPlayerSkillType SkillType)
 {
-	if (OwnedSkills.Contains(SkillType))
+	//if (OwnedSkills.Contains(SkillType))
+	//{
+	//	/*UPPProjectileSkill* SkillInstance = NewObject<UPPProjectileSkill>(this, OwnedSkills[SkillType]);
+	//	SkillInstance->Initialize(this);
+	//	SkillInstance->SetProjectileClass(APPProjectileBase::StaticClass(), SkillType);*/
+	//	if (ProjectileSkill)
+	//	{
+	//		ProjectileSkill->TryUseSkill();
+	//		//ProjectileSkill->UseSkill();
+	//	}
+	//}
+	if (TObjectPtr<UPPSkillBase>* Found = OwnedSkills.Find(SkillType))
 	{
-		UPPProjectileSkill* SkillInstance = NewObject<UPPProjectileSkill>(this, OwnedSkills[SkillType]);
-		SkillInstance->Initialize(this);
-		SkillInstance->SetProjectileClass(APPProjectileBase::StaticClass(), SkillType);
-		if (SkillInstance)
+		if (Found && *Found)
 		{
-			SkillInstance->UseSkill();
+			if ((*Found)->TryUseSkill())
+			{
+				const float Ratio = (*Found)->GetCooldownRatio();
+				
+				if (UPPHUDWidget* HUD = Cast<UPPHUDWidget>(PlayerController->GetHUDWidget()))
+				{
+					HUD->UpdateSkillCooldown(SkillType, Ratio);
+				}
+			}
 		}
 	}
+
 }
 
 void APPCharacterBase::OnUseSkillSlot_One(const FInputActionInstance& Instance)
@@ -231,7 +263,7 @@ void APPCharacterBase::OnUseSkillSlot_One(const FInputActionInstance& Instance)
 	bool BoolValue = Instance.GetValue().Get<bool>();
 	if (BoolValue)
 	{
-		UE_LOG(LogTemp, Log, TEXT("SKill One"));
+		//UE_LOG(LogTemp, Log, TEXT("SKill One"));
 		if (EquippedSkills.IsValidIndex(0))
 		{
 			UseActiveSkill(EquippedSkills[0]);
@@ -249,7 +281,7 @@ void APPCharacterBase::OnUseSkillSlot_Two(const FInputActionInstance& Instance)
 	bool BoolValue = Instance.GetValue().Get<bool>();
 	if (BoolValue)
 	{
-		UE_LOG(LogTemp, Log, TEXT("SKill Two"));
+		//UE_LOG(LogTemp, Log, TEXT("SKill Two"));
 		if (EquippedSkills.IsValidIndex(1))
 		{
 			UseActiveSkill(EquippedSkills[1]);
@@ -266,7 +298,7 @@ void APPCharacterBase::OnUseSkillSlot_Three(const FInputActionInstance& Instance
 	bool BoolValue = Instance.GetValue().Get<bool>();
 	if (BoolValue)
 	{
-		UE_LOG(LogTemp, Log, TEXT("SKill Three"));
+		//UE_LOG(LogTemp, Log, TEXT("SKill Three"));
 		if (EquippedSkills.IsValidIndex(2))
 		{
 			UseActiveSkill(EquippedSkills[2]);
@@ -283,7 +315,7 @@ void APPCharacterBase::OnUseSkillSlot_Four(const FInputActionInstance& Instance)
 	bool BoolValue = Instance.GetValue().Get<bool>();
 	if (BoolValue)
 	{
-		UE_LOG(LogTemp, Log, TEXT("SKill Four"));
+		//UE_LOG(LogTemp, Log, TEXT("SKill Four"));
 		if (EquippedSkills.IsValidIndex(3))
 		{
 			UseActiveSkill(EquippedSkills[3]);
@@ -342,7 +374,7 @@ void APPCharacterBase::SetCharacterControl(ECharacterControlType NewCharacterCon
 	SetCharacterControlData(NewCharacterControl);
 
 	// Add InputMapping Context to Enhanced Input System.
-	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
+	//APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
 	if (auto SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 	{
 		SubSystem->ClearAllMappings();
@@ -352,5 +384,10 @@ void APPCharacterBase::SetCharacterControl(ECharacterControlType NewCharacterCon
 		);
 	}
 
+}
+
+const TObjectPtr<class UPPSkillBase>* APPCharacterBase::GetSkillByType(EPlayerSkillType SkillType) const
+{
+	return OwnedSkills.Find(SkillType);
 }
 

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Skill/PPPlayerSkillType.h"
 #include "PPHUDWidget.generated.h"
 
 class UPPEquippedSkillWidget;
@@ -19,6 +20,8 @@ class PURPLE_API UPPHUDWidget : public UUserWidget
 	
 public:
 	UPPHUDWidget(const FObjectInitializer& ObjectInitializer);
+
+	void UpdateSkillCooldown(EPlayerSkillType SkillType, float Ratio);
 
 	UPPEquippedSkillWidget* GetEquippedSkillWidget();
 

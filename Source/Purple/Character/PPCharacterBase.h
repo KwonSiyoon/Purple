@@ -28,6 +28,8 @@ public:
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
+	virtual void PossessedBy(AController* NewController) override;
+
 	virtual void SetDead();
 
 	virtual void GetExp(float InValue);
@@ -94,7 +96,7 @@ public:	// Input Section.
 public:	// Skill Section.
 	// 캐릭터가 보유한 스킬들
 	UPROPERTY()
-	TMap<EPlayerSkillType, TSubclassOf<class UPPSkillBase>> OwnedSkills;
+	TMap<EPlayerSkillType, TObjectPtr<class UPPSkillBase>> OwnedSkills;
 
 	UPROPERTY()
 	TArray<EPlayerSkillType> EquippedSkills;
@@ -102,6 +104,9 @@ public:	// Skill Section.
 	// 스킬 클래스와 발사체 블루프린트를 설정하기 위한 UPROPERTY
 	UPROPERTY(EditDefaultsOnly, Category = "Skill")
 	TSubclassOf<class UPPProjectileSkill> ProjectileSkillClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Skill")
+	TObjectPtr<class UPPProjectileSkill> ProjectileSkill;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Skill")
 	TSubclassOf<class APPProjectileBase> ProjectileBPClass;
@@ -115,5 +120,11 @@ public:
 
 	void SetCharacterControl(ECharacterControlType NewCharacterControlType);
 
+	const TObjectPtr<class UPPSkillBase>* GetSkillByType(EPlayerSkillType SkillType) const;
+
+protected:
+
+	UPROPERTY()
+	TObjectPtr<class APPPlayerController> PlayerController;
 
 };
