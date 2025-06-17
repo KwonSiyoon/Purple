@@ -117,7 +117,8 @@ APPCharacterBase::APPCharacterBase()
 
 	CurrentCharacterControlType = ECharacterControlType::Quarter;
 
-	
+	EquippedSkills.SetNum(MaxSkillCount);
+
 
 	CurrentHp = 100.0f;
 	CurrentExp = 0.0f;
@@ -187,12 +188,11 @@ void APPCharacterBase::BeginPlay()
 	ProjectileSkill->Initialize(this);
 	ProjectileSkill->SetProjectileClass(APPProjectileBase::StaticClass(), EPlayerSkillType::Fireball);
 	OwnedSkills.Add(EPlayerSkillType::Fireball, ProjectileSkill);
-	EquippedSkills.SetNum(4);
+	AcquireSkill(EPlayerSkillType::Fireball, 0);
 	/*EquippedSkills[0] = EPlayerSkillType::Fireball;
 	EquippedSkills[1] = EPlayerSkillType::Fireball;
 	EquippedSkills[2] = EPlayerSkillType::Fireball;
 	EquippedSkills[3] = EPlayerSkillType::Fireball;*/
-	PlayerController->AcquireSkill(EPlayerSkillType::Fireball, 0);
 
 	//GetWorld()->SpawnActor<APPEnemyCharacterBase>(APPEnemyCharacterBase::StaticClass(), GetActorLocation() + FVector::ForwardVector * 100.0f, FRotator::ZeroRotator);
 }
@@ -389,5 +389,12 @@ void APPCharacterBase::SetCharacterControl(ECharacterControlType NewCharacterCon
 const TObjectPtr<class UPPSkillBase>* APPCharacterBase::GetSkillByType(EPlayerSkillType SkillType) const
 {
 	return OwnedSkills.Find(SkillType);
+}
+
+void APPCharacterBase::AcquireSkill(EPlayerSkillType SkillType, int32 Index)
+{
+	
+	PlayerController->AcquireSkill(SkillType, Index);
+	EquippedSkills[Index] = SkillType;
 }
 

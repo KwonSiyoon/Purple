@@ -122,9 +122,13 @@ public:
 
 	const TObjectPtr<class UPPSkillBase>* GetSkillByType(EPlayerSkillType SkillType) const;
 
+	void AcquireSkill(EPlayerSkillType SkillType, int32 Index);
+
 protected:
 
 	UPROPERTY()
 	TObjectPtr<class APPPlayerController> PlayerController;
+
+	int32 MaxSkillCount = 4;
 
 };
