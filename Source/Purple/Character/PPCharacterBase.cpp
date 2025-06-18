@@ -17,6 +17,8 @@
 #include "PPCollision.h"
 #include "UI/PPHUDWidget.h"
 #include "Player/PPPlayerController.h"
+#include "GameData/PPGameSingleton.h"
+#include "Skill/PPSkillDataManager.h"
 
 // Sets default values
 APPCharacterBase::APPCharacterBase()
@@ -166,12 +168,27 @@ void APPCharacterBase::GetExp(float InValue)
 
 		/*UE_LOG(LogTemp, Log, TEXT("LevelUp -> CurrentLevel : %d || MaxExp : %.1f || CurrentExp : %.1f "), CurrentLevel, MaxExp, CurrentExp);*/
 	}
+
+	PlayerController->UpdateExp(CurrentExp / MaxExp);
 }
 
 void APPCharacterBase::LevelUp()
 {
 	CurrentLevel++;
 	MaxExp *= 2;
+
+}
+
+void APPCharacterBase::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	for (const auto& SkillPair : OwnedSkills)
+	{
+		if (SkillPair.Value)
+		{
+			SkillPair.Value->TickSkill(DeltaTime);
+		}
+	}
 
 }
 
@@ -184,17 +201,12 @@ void APPCharacterBase::BeginPlay()
 
 	// @ToDo : 스킬획득 처리 따로 해야함.
 	ProjectileSkillClass = UPPProjectileSkill::StaticClass();
-	ProjectileSkill = NewObject<UPPProjectileSkill>(this, ProjectileSkillClass);
-	ProjectileSkill->Initialize(this);
-	ProjectileSkill->SetProjectileClass(APPProjectileBase::StaticClass(), EPlayerSkillType::Fireball);
-	OwnedSkills.Add(EPlayerSkillType::Fireball, ProjectileSkill);
-	AcquireSkill(EPlayerSkillType::Fireball, 0);
-	/*EquippedSkills[0] = EPlayerSkillType::Fireball;
-	EquippedSkills[1] = EPlayerSkillType::Fireball;
-	EquippedSkills[2] = EPlayerSkillType::Fireball;
-	EquippedSkills[3] = EPlayerSkillType::Fireball;*/
 
-	//GetWorld()->SpawnActor<APPEnemyCharacterBase>(APPEnemyCharacterBase::StaticClass(), GetActorLocation() + FVector::ForwardVector * 100.0f, FRotator::ZeroRotator);
+	AcquireSkill(EPlayerSkillType::Iceball, 0);
+	AcquireSkill(EPlayerSkillType::Light, 1);
+
+	GetExp(0);
+
 }
 
 void APPCharacterBase::QuarterMove(const FInputActionValue& Value)
@@ -229,17 +241,6 @@ void APPCharacterBase::QuarterMove(const FInputActionValue& Value)
 
 void APPCharacterBase::UseActiveSkill(EPlayerSkillType SkillType)
 {
-	//if (OwnedSkills.Contains(SkillType))
-	//{
-	//	/*UPPProjectileSkill* SkillInstance = NewObject<UPPProjectileSkill>(this, OwnedSkills[SkillType]);
-	//	SkillInstance->Initialize(this);
-	//	SkillInstance->SetProjectileClass(APPProjectileBase::StaticClass(), SkillType);*/
-	//	if (ProjectileSkill)
-	//	{
-	//		ProjectileSkill->TryUseSkill();
-	//		//ProjectileSkill->UseSkill();
-	//	}
-	//}
 	if (TObjectPtr<UPPSkillBase>* Found = OwnedSkills.Find(SkillType))
 	{
 		if (Found && *Found)
@@ -393,8 +394,15 @@ const TObjectPtr<class UPPSkillBase>* APPCharacterBase::GetSkillByType(EPlayerSk
 
 void APPCharacterBase::AcquireSkill(EPlayerSkillType SkillType, int32 Index)
 {
-	
+	UPPProjectileSkill* ProjectileSkilltemp = NewObject<UPPProjectileSkill>(this, ProjectileSkillClass);
+	ProjectileSkilltemp->Initialize(this);
+	ProjectileSkilltemp->SetProjectileClass(APPProjectileBase::StaticClass(), SkillType);
+	ProjectileSkilltemp->SetData(UPPGameSingleton::Get().GetSkillData(SkillType, 1), Index);
+	OwnedSkills.Add(SkillType, ProjectileSkilltemp);
+
+
 	PlayerController->AcquireSkill(SkillType, Index);
+	PlayerController->BindSkill(ProjectileSkilltemp, Index);
 	EquippedSkills[Index] = SkillType;
 }
 

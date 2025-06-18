@@ -22,11 +22,15 @@ public:
 	UPPHUDWidget(const FObjectInitializer& ObjectInitializer);
 
 	void UpdateSkillCooldown(EPlayerSkillType SkillType, float Ratio);
+	void UpdateExpBar(float Ratio);
 
 	UPPEquippedSkillWidget* GetEquippedSkillWidget();
 
 	UPROPERTY()
 	TObjectPtr<UPPEquippedSkillWidget> EquippedSkillWidget;
+
+	UPROPERTY()
+	TObjectPtr<class UProgressBar> ExpBar;
 
 protected:
 	virtual void NativeConstruct() override;

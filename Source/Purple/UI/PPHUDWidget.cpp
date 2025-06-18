@@ -3,6 +3,7 @@
 
 #include "UI/PPHUDWidget.h"
 #include "PPEquippedSkillWidget.h"
+#include "Components/ProgressBar.h"
 
 UPPHUDWidget::UPPHUDWidget(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -23,10 +24,21 @@ void UPPHUDWidget::UpdateSkillCooldown(EPlayerSkillType SkillType, float Ratio)
 	}
 }
 
+void UPPHUDWidget::UpdateExpBar(float Ratio)
+{
+	if (ExpBar)
+	{
+		ExpBar->SetPercent(Ratio);
+	}
+}
+
 
 void UPPHUDWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
 	EquippedSkillWidget = Cast<UPPEquippedSkillWidget>(GetWidgetFromName(TEXT("EquippedSkill")));
+
+	ExpBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("EXP_Bar")));
+
 }

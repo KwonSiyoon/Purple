@@ -42,12 +42,68 @@ UPPGameSingleton::UPPGameSingleton()
 		
 	}
 
-	static ConstructorHelpers::FObjectFinder<UDataTable> SkillDataRef(TEXT("/Game/.../SkillDataTable.SkillDataTable"));
+	static ConstructorHelpers::FObjectFinder<UDataTable> SkillDataRef(TEXT("/Script/Engine.DataTable'/Game/Purple/SkillData/SkillDataTable.SkillDataTable'"));
 	if (SkillDataRef.Succeeded())
 	{
-		SkillDataManager = NewObject<UPPSkillDataManager>(this);
-		SkillDataManager->Initialize(SkillDataRef.Object);
+		UE_LOG(LogTemp, Warning, TEXT("SkillDataRef 로드 성공"));
+		SkillData = SkillDataRef.Object;
+		if (SkillData)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("SkillData 유효함"));
+			static const FString Context = TEXT("Skill Data Load");
+			TArray<FPPSkillData*> AllRows;
+			SkillData->GetAllRows<FPPSkillData>(Context, AllRows);
+
+			for (const FPPSkillData* Row : AllRows)
+			{
+				if (!Row) continue;
+
+				EPlayerSkillType SkillType = Row->SkillType;
+				int32 Level = Row->Level;
+
+				SkillDataMap.FindOrAdd(SkillType).Add(Level, *Row);
+			}
+		}
 	}
+
+	UE_LOG(LogTemp, Log, TEXT("===== [SkillDataMap 전체 데이터 출력] ====="));
+
+	if (SkillDataMap.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SkillDataMap이 비어 있습니다."));
+	}
+	else
+	{
+		for (const TPair<EPlayerSkillType, TMap<int32, FPPSkillData>>& SkillPair : SkillDataMap)
+		{
+			EPlayerSkillType SkillType = SkillPair.Key;
+			FString SkillTypeName = StaticEnum<EPlayerSkillType>()->GetNameStringByValue(static_cast<int32>(SkillType));
+			const TMap<int32, FPPSkillData>& LevelMap = SkillPair.Value;
+
+			if (LevelMap.Num() == 0)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("SkillType [%s] 의 레벨 데이터가 비어 있습니다."), *SkillTypeName);
+				continue;
+			}
+
+			for (const TPair<int32, FPPSkillData>& LevelPair : LevelMap)
+			{
+				int32 Level = LevelPair.Key;
+				const FPPSkillData& Data = LevelPair.Value;
+
+				UE_LOG(LogTemp, Log,
+					TEXT("[SkillType: %-15s] Level: %2d | Cooldown: %5.2f | Damage: %6.2f | Range: %6.2f"),
+					*SkillTypeName,
+					Level,
+					Data.Cooldown,
+					Data.Damage,
+					Data.Range
+				);
+			}
+		}
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("==========================================="));
 
 
 }
@@ -68,9 +124,11 @@ UPPGameSingleton& UPPGameSingleton::Get()
 
 FPPSkillData UPPGameSingleton::GetSkillData(EPlayerSkillType SkillType, int32 Level) const
 {
-	if (SkillDataManager)
+	if (const TMap<int32, FPPSkillData>* LevelMap = SkillDataMap.Find(SkillType))
 	{
-		return SkillDataManager->GetSkillData(SkillType, Level);
+		UE_LOG(LogTemp, Log, TEXT("In UseSkill"))
+
+		return *LevelMap->Find(Level);
 	}
 	return FPPSkillData();
 }

@@ -26,7 +26,6 @@ int32 UPPEquippedSkillWidget::FindSlotBySkillType(EPlayerSkillType SkillType) co
 void UPPEquippedSkillWidget::AssignSkillToSlot(int32 Index, EPlayerSkillType SkillType, UTexture2D* Icon)
 {
 	if (!SkillSlots.IsValidIndex(Index)) return;
-
 	FEquippedSkillSlotUI& SlotUI = SkillSlots[Index];
 	SlotUI.AssignedSkill = SkillType;
 	SlotUI.Icon = Icon;
@@ -48,7 +47,7 @@ void UPPEquippedSkillWidget::AssignSkillToSlot(int32 Index, EPlayerSkillType Ski
 		FProgressBarStyle ProgressBarStyle = SlotUI.CooldownBar->GetWidgetStyle();
 		ProgressBarStyle.SetBackgroundImage(Brush);
 		SlotUI.CooldownBar->SetWidgetStyle(ProgressBarStyle);
-		UE_LOG(LogTemp, Log, TEXT("SkillData 등록."));
+		UE_LOG(LogTemp, Log, TEXT("SkillData 등록 없음."));
 	}
 }
 
@@ -76,6 +75,20 @@ void UPPEquippedSkillWidget::UpdateCooldown(int32 Index, float Ratio)
 	}
 }
 
+void UPPEquippedSkillWidget::BindSkill(UPPSkillBase* Skill, int32 SlotIndex)
+{
+	UE_LOG(LogTemp, Log, TEXT("%s() called."), TEXT(__FUNCTION__));
+	if (Skill)
+	{
+		Skill->OnCooldownUpdated.AddUObject(this, &UPPEquippedSkillWidget::UpdateCooldown);
+	}
+}
+
+void UPPEquippedSkillWidget::UpdateCooldownBar(float Ratio)
+{
+
+}
+
 void UPPEquippedSkillWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -84,10 +97,6 @@ void UPPEquippedSkillWidget::NativeConstruct()
 
 	SkillSlots[0].CooldownBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("Skill_01")));
 	SkillSlots[1].CooldownBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("Skill_02")));
-
-
-	/*Skill_1 = Cast<UProgressBar>(GetWidgetFromName(TEXT("Skill_01")));
-	Skill_2 = Cast<UProgressBar>(GetWidgetFromName(TEXT("Skill_02")));*/
 	
 }
 
@@ -95,7 +104,7 @@ void UPPEquippedSkillWidget::NativeTick(const FGeometry& MyGeometry, float InDel
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	for (int32 i = 0; i < SkillSlots.Num(); ++i)
+	/*for (int32 i = 0; i < SkillSlots.Num(); ++i)
 	{
 		if (SkillSlots[i].AssignedSkill == EPlayerSkillType::Empty)
 			continue;
@@ -115,7 +124,7 @@ void UPPEquippedSkillWidget::NativeTick(const FGeometry& MyGeometry, float InDel
 				}
 			}
 		}
-	}
+	}*/
 }
 
 

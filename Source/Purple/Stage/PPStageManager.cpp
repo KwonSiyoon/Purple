@@ -17,7 +17,6 @@ void APPStageManager::StartStage()
     if (WaveManager)
     {
         WaveManager->ResetWaves(); // 0초부터 시작
-        UE_LOG(LogTemp, Log, TEXT("StartStage"));
     }
 }
 

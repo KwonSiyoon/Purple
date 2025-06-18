@@ -8,6 +8,8 @@
 #include "PPSkillBase.generated.h"
 
 
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnSkillCooldownUpdated, int32 /*SlotIndex*/, float /*CooldownRatio*/);
+
 UCLASS()
 class PURPLE_API UPPSkillBase : public UObject
 {
@@ -17,6 +19,12 @@ public:
 	UPPSkillBase();
 
 	virtual void Initialize(class APPCharacterBase* InOwner) { OwnerCharacter = InOwner; }
+
+	virtual void SetData(struct FPPSkillData InSkillData, int32 InSlotIndex);
+
+	FOnSkillCooldownUpdated OnCooldownUpdated;
+
+	void TickSkill(float DeltaTime);
 
 	UFUNCTION(BlueprintCallable)
 	bool TryUseSkill();
@@ -28,11 +36,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void UseSkill();
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill")
 	EPlayerSkillType SkillType;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
-	float Cooldown = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill")
+	float Cooldown = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill")
+	bool bIsAuto;
+
+	int32 SlotIndex;
 
 protected:
 	UPROPERTY()

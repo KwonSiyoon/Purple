@@ -122,7 +122,6 @@ FVector UPPWaveSpawnManager::CalcSpawnPos(const FPPSpawnPattern& Pattern, int32 
 		const float Angle = Stream.FRandRange(0.f, 360.f);
 		const FVector Dir = FVector(FMath::Cos(FMath::DegreesToRadians(Angle)),
 			FMath::Sin(FMath::DegreesToRadians(Angle)), 0.f);
-		UE_LOG(LogTemp, Log, TEXT("WaveManager Circle 패턴."));
 		return Center + Dir * Pattern.Radius;
 	}
 	case ESpawnPatternType::RearAttack:
@@ -181,7 +180,6 @@ void UPPWaveSpawnManager::SpawnEnemy(TSubclassOf<APPEnemyCharacterBase> EnemyCla
 	auto* Spawned = GetWorld()->SpawnActor<APPEnemyCharacterBase>(EnemyClass, SpawnLocation, FRotator::ZeroRotator, Params);
 	if (Spawned && bIsElite)
 	{
-		UE_LOG(LogTemp, Log, TEXT("WaveManager Elite 가져옴."));
 	}
 }
 

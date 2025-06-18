@@ -2,12 +2,32 @@
 
 
 #include "Skill/PPSkillBase.h"
-
+#include "Skill/PPSkillData.h"
 
 // Sets default values
 UPPSkillBase::UPPSkillBase()
 {
 
+}
+
+void UPPSkillBase::SetData(FPPSkillData InSkillData, int32 InSlotIndex)
+{
+    bIsAuto = InSkillData.bIsAuto;
+    SlotIndex = InSlotIndex;
+    Cooldown = InSkillData.Cooldown;
+}
+
+void UPPSkillBase::TickSkill(float DeltaTime)
+{
+    if (!bIsAuto)
+    {
+        float Ratio = GetCooldownRatio();
+        OnCooldownUpdated.Broadcast(SlotIndex, Ratio); // 갱신 알림
+    }
+    else
+    {
+        TryUseSkill(); // 자동 사용 시도
+    }
 }
 
 bool UPPSkillBase::TryUseSkill()
@@ -24,7 +44,7 @@ bool UPPSkillBase::TryUseSkill()
 
 void UPPSkillBase::UseSkill()
 {
-	UE_LOG(LogTemp, Log, TEXT("In UseSkill"))
+	//UE_LOG(LogTemp, Log, TEXT("In UseSkill"))
 }
 
 
@@ -42,5 +62,5 @@ float UPPSkillBase::GetCooldownRatio() const
     if (!World) return 0.0f;
 
     float Elapsed = World->GetTimeSeconds() - LastUsedTime;
-    return FMath::Clamp(Elapsed / Cooldown, 0.0f, 1.0f);
+    return FMath::Clamp(1.0f - Elapsed / Cooldown, 0.0f, 1.0f);
 }

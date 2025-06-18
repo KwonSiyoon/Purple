@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
+#include "PPPlayerSkillType.h"
 #include "PPSkillData.generated.h"
 
 USTRUCT(BlueprintType)
@@ -12,6 +13,9 @@ struct FPPSkillData : public FTableRowBase
 public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FName SkillID;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    EPlayerSkillType SkillType;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     bool bIsAuto;

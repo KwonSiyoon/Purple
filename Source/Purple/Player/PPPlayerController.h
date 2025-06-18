@@ -23,7 +23,10 @@ public:
 	APPPlayerController();
 	virtual void BeginPlay() override;
 	void AcquireSkill(EPlayerSkillType SkillType, int32 SlotIndex);
+	void UpdateExp(float Ratio);
 	class  UPPHUDWidget* GetHUDWidget() { return PPHUDWidget; }
+	void BindSkill(class UPPSkillBase* Skill, int32 SlotIndex);
+
 	/*void UpdateCoolDown();*/
 
 protected:	// HUD Section.

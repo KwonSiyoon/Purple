@@ -28,6 +28,7 @@ APPEnemyCharacterBase::APPEnemyCharacterBase()
 	// 무브먼트 설정.
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 720.0f, 0.0f);
+	GetCharacterMovement()->MaxWalkSpeed = 400.f;
 
 	// 메시의 콜리전은 NoCollision 설정(주로 랙돌에 사용됨).
 	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));

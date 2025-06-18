@@ -26,6 +26,9 @@ public:
     // 외부에서 스킬 레벨을 설정할 수 있도록 공개
     void SetSkillLevel(int32 InLevel) { SkillLevel = InLevel; }
 
+    virtual void SetData(struct FPPSkillData InSkillData, int32 InSlotIndex) override;
+
+
 	virtual void UseSkill() override;
 
 protected:
@@ -43,7 +46,7 @@ protected:
 
     // 기본 발사체 개수
     UPROPERTY(EditDefaultsOnly, Category = "Projectile")
-    int32 BaseProjectileCount = 5;
+    int32 ProjectileCount = 5;
 
     // 스킬 레벨에 따른 추가 발사체 수
     UPROPERTY(EditDefaultsOnly, Category = "Projectile")

@@ -6,6 +6,7 @@
 #include "Skill/PPSkillData.h"
 #include "Engine/DataTable.h"
 #include "UI/PPEquippedSkillWidget.h"
+#include "GameData/PPGameSingleton.h"
 
 APPPlayerController::APPPlayerController()
 {
@@ -41,31 +42,26 @@ void APPPlayerController::BeginPlay()
 		PPHUDWidget->AddToViewport();
 	}
 
-	//AcquireSkill(EPlayerSkillType::Empty, 0);
-
 }
 
 void APPPlayerController::AcquireSkill(EPlayerSkillType SkillType, int32 SlotIndex = 0)
 {
 	if (!SkillDataTable || !PPHUDWidget || !PPHUDWidget->GetEquippedSkillWidget()) return;
 
-	const FString EnumString = StaticEnum<EPlayerSkillType>()->GetNameStringByValue((int64)SkillType); // "EPlayerSkillType::Fireball"
-	const FString RowString = EnumString.Replace(TEXT("EPlayerSkillType::"), TEXT("")); // "Fireball"
-	const FName RowName = FName(*RowString);
-	const FPPSkillData* SkillData = SkillDataTable->FindRow<FPPSkillData>(RowName, TEXT("AssignSkill"));
-
+	auto SkillData = UPPGameSingleton::Get().GetSkillData(SkillType, 1);
 	
+	FString SkillTypeName = StaticEnum<EPlayerSkillType>()->GetNameStringByValue(static_cast<int32>(SkillType));
 
-	if (SkillData)
-	{
-		PPHUDWidget->GetEquippedSkillWidget()->AssignSkillToSlot(SlotIndex, SkillType, SkillData->Icon);
-		UE_LOG(LogTemp, Log, TEXT("SkillData 가져옴."));
-	}
+	PPHUDWidget->GetEquippedSkillWidget()->AssignSkillToSlot(SlotIndex, SkillType, SkillData.Icon);
 
-	//// 스킬 획득 시
-	//const FPPSkillData* SkillData = SkillDataTable->FindRow<FPPSkillData>(RowName, TEXT("AssignSkill"));
-	//if (SkillData && HUD && HUD->GetEquippedSkillWidget())
-	//{
-	//	HUD->GetEquippedSkillWidget()->AssignSkillToSlot(SlotIndex, *SkillData);
-	//}
+}
+
+void APPPlayerController::UpdateExp(float Ratio)
+{
+	PPHUDWidget->UpdateExpBar(Ratio);
+}
+
+void APPPlayerController::BindSkill(UPPSkillBase* Skill, int32 SlotIndex)
+{
+	PPHUDWidget->GetEquippedSkillWidget()->BindSkill(Skill, SlotIndex);
 }

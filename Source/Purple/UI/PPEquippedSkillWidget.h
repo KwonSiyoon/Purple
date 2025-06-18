@@ -54,6 +54,9 @@ public:
 	void UpdateCooldown(EPlayerSkillType SkillType, float Ratio);
 	void UpdateCooldown(int32 Index, float Ratio);
 
+	void BindSkill(class UPPSkillBase* Skill, int32 SlotIndex);
+	void UpdateCooldownBar(float Ratio);
+
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
