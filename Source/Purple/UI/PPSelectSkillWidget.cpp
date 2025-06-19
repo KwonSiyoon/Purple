@@ -11,7 +11,7 @@
 
 void UPPSelectSkillWidget::NativeConstruct()
 {
-	//Super::NativeConstruct();
+	Super::NativeConstruct();
 
 	//// 바인딩: 각 카드 위젯이 OnClicked 시 OnSkillCardClicked 호출
 	//for (int32 i = 0; i < SkillCardWidgets.Num(); ++i)

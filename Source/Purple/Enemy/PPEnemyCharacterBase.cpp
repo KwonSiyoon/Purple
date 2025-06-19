@@ -43,7 +43,7 @@ APPEnemyCharacterBase::APPEnemyCharacterBase()
 	DropComponent = CreateDefaultSubobject<UPPDropComponent>(TEXT("DropComponent"));
 
 	CurrentHp = 100.0f;
-	ExpRewardAmount = 1000.0f;
+	ExpRewardAmount = 100.0f;
 
 	// --- RVO 회피 설정 : 적들이 서로 겹치지 않도록 함.
 	GetCharacterMovement()->bUseRVOAvoidance = true;
