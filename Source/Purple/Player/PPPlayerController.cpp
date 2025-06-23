@@ -75,9 +75,6 @@ void APPPlayerController::AcquireSkill(EPlayerSkillType SkillType, int32 SlotInd
 
 	if (!PlayerCharacter) return;
 
-	// 스킬 레벨 확인 (Character가 관리)
-	//int32 NewSkillLevel = PlayerCharacter->GetSkillLevel(SkillType) + 1;
-
 	const FPPSkillData* SkillData = UPPGameSingleton::Get().GetSkillData(SkillType, 1);
 	if (!SkillData) return;
 

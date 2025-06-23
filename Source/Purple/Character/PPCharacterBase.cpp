@@ -41,7 +41,6 @@ APPCharacterBase::APPCharacterBase()
 	}
 
 	// Animation Blueprint 설정.
-	// Class니까 _C 추가.
 	static ConstructorHelpers::FClassFinder<UAnimInstance> CharacterAnim(TEXT("/Game/Characters/Mannequins/Animations/ABP_Quinn.ABP_Quinn_C"));
 	if (CharacterAnim.Class)
 	{
@@ -134,7 +133,6 @@ float APPCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	if (CurrentHp > 0.0f)
 	{
 		CurrentHp -= DamageAmount;
-		//UE_LOG(LogTemp, Log, TEXT("플레이어 %.1f 데미지 받음."), DamageAmount);
 	}
 	if (CurrentHp <= 0.0f)
 	{
@@ -158,7 +156,6 @@ void APPCharacterBase::PossessedBy(AController* NewController)
 
 void APPCharacterBase::SetDead()
 {
-	//UE_LOG(LogTemp, Log, TEXT("플레이어 사망."));
 }
 
 void APPCharacterBase::GetExp(float InValue)
@@ -193,22 +190,16 @@ void APPCharacterBase::BeginPlay()
 	
 	SetCharacterControl(CurrentCharacterControlType);
 
-	// @ToDo : 스킬획득 처리 따로 해야함.
-	//ProjectileSkillClass = UPPProjectileSkill::StaticClass();
-
 	PlayerController->AcquireSkill(EPlayerSkillType::Iceball, 0);
 	PlayerController->AcquireSkill(EPlayerSkillType::Light, 1);
 
-
 	GetExp(0);
-
 }
 
 void APPCharacterBase::QuarterMove(const FInputActionValue& Value)
 {
 	// 입력 값 읽기.
 	FVector2D Movement = Value.Get<FVector2D>();
-	//float InputSizeSquared = Movement.SizeSquared();
 	float MovementvectorSize = 1.0f;
 	float MovementVectorSizeSquared = Movement.SizeSquared();
 
@@ -259,7 +250,6 @@ void APPCharacterBase::OnUseSkillSlot_One(const FInputActionInstance& Instance)
 	bool BoolValue = Instance.GetValue().Get<bool>();
 	if (BoolValue)
 	{
-		//UE_LOG(LogTemp, Log, TEXT("SKill One"));
 		if (EquippedSkills.IsValidIndex(0))
 		{
 			UseActiveSkill(EquippedSkills[0]);
@@ -277,7 +267,6 @@ void APPCharacterBase::OnUseSkillSlot_Two(const FInputActionInstance& Instance)
 	bool BoolValue = Instance.GetValue().Get<bool>();
 	if (BoolValue)
 	{
-		//UE_LOG(LogTemp, Log, TEXT("SKill Two"));
 		if (EquippedSkills.IsValidIndex(1))
 		{
 			UseActiveSkill(EquippedSkills[1]);
@@ -294,7 +283,6 @@ void APPCharacterBase::OnUseSkillSlot_Three(const FInputActionInstance& Instance
 	bool BoolValue = Instance.GetValue().Get<bool>();
 	if (BoolValue)
 	{
-		//UE_LOG(LogTemp, Log, TEXT("SKill Three"));
 		if (EquippedSkills.IsValidIndex(2))
 		{
 			UseActiveSkill(EquippedSkills[2]);
@@ -311,7 +299,6 @@ void APPCharacterBase::OnUseSkillSlot_Four(const FInputActionInstance& Instance)
 	bool BoolValue = Instance.GetValue().Get<bool>();
 	if (BoolValue)
 	{
-		//UE_LOG(LogTemp, Log, TEXT("SKill Four"));
 		if (EquippedSkills.IsValidIndex(3))
 		{
 			UseActiveSkill(EquippedSkills[3]);
@@ -370,7 +357,6 @@ void APPCharacterBase::SetCharacterControl(ECharacterControlType NewCharacterCon
 	SetCharacterControlData(NewCharacterControl);
 
 	// Add InputMapping Context to Enhanced Input System.
-	//APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
 	if (auto SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 	{
 		SubSystem->ClearAllMappings();
@@ -389,18 +375,6 @@ const TObjectPtr<class UPPSkillBase>* APPCharacterBase::GetSkillByType(EPlayerSk
 
 void APPCharacterBase::AcquireSkill(EPlayerSkillType SkillType, int32 Index)
 {
-	/*UPPProjectileSkill* ProjectileSkilltemp = NewObject<UPPProjectileSkill>(this, ProjectileSkillClass);
-	ProjectileSkilltemp->Initialize(this);
-	ProjectileSkilltemp->SetProjectileClass(APPProjectileBase::StaticClass(), SkillType);
-
-	const FPPSkillData* SkillData = UPPGameSingleton::Get().GetSkillData(SkillType, 1);
-	if (!SkillData) return;
-	ProjectileSkilltemp->SetData(*SkillData, Index);
-
-	PlayerController->OwnedSkills.Add(SkillType, ProjectileSkilltemp);
-
-	PlayerController->AcquireSkill(SkillType, Index);
-	PlayerController->BindSkill(ProjectileSkilltemp, Index);*/
 	EquippedSkills[Index] = SkillType;
 }
 

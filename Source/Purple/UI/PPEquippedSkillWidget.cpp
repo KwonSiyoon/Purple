@@ -35,7 +35,6 @@ void UPPEquippedSkillWidget::AssignSkillToSlot(int32 Index, EPlayerSkillType Ski
 	{
 		
 		Brush.SetResourceObject(Icon);
-		//Brush.ImageSize = FVector2D(64.f, 64.f);
 		FProgressBarStyle ProgressBarStyle = SlotUI.CooldownBar->GetWidgetStyle();
 		ProgressBarStyle.SetBackgroundImage(Brush);
 		SlotUI.CooldownBar->SetWidgetStyle(ProgressBarStyle);
@@ -63,7 +62,6 @@ void UPPEquippedSkillWidget::AssignSkillToSlot(int32 Index, const FPPSkillData* 
 	{
 
 		Brush.SetResourceObject(SlotUI.Icon);
-		//Brush.ImageSize = FVector2D(64.f, 64.f);
 		FProgressBarStyle ProgressBarStyle = SlotUI.CooldownBar->GetWidgetStyle();
 		ProgressBarStyle.SetBackgroundImage(Brush);
 		SlotUI.CooldownBar->SetWidgetStyle(ProgressBarStyle);

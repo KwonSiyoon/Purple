@@ -44,7 +44,6 @@ bool UPPSkillBase::TryUseSkill()
 
 void UPPSkillBase::UseSkill()
 {
-	//UE_LOG(LogTemp, Log, TEXT("In UseSkill"))
 }
 
 

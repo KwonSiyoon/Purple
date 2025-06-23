@@ -80,9 +80,6 @@ void AExpOrbActor::Init(float InExpValue, AActor* TargetPlayer)
 {
     ExpValue = InExpValue;
     TargetToFollow = TargetPlayer;
-
-    //UE_LOG(LogTemp, Log, TEXT("ExpOrb Init 완료 - Exp: %.1f, Target: %s"), ExpValue, *GetNameSafe(TargetToFollow));
-
 }
 
 void AExpOrbActor::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -91,8 +88,6 @@ void AExpOrbActor::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
     APPCharacterBase* Player = Cast<APPCharacterBase>(OtherActor);
     if (Player)
     {
-        //UE_LOG(LogTemp, Log, TEXT("Exp %.1f 흡수됨."), ExpValue);
-
         Player->GetExp(ExpValue);
 
         // 파티클 효과 등 추가 가능
