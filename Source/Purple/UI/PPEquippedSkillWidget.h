@@ -48,7 +48,7 @@ public:
 
 	// 스킬 획득 시 슬롯에 할당 
 	void AssignSkillToSlot(int32 Index, EPlayerSkillType SkillType, UTexture2D* Icon);
-	void AssignSkillToSlot(int32 Index, struct FPPSkillData InSkillData);
+	void AssignSkillToSlot(int32 Index, const struct FPPSkillData* InSkillData);
 
 	// 쿨타임 갱신 
 	void UpdateCooldown(EPlayerSkillType SkillType, float Ratio);

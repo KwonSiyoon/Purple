@@ -4,9 +4,15 @@
 #include "PPPlayerController.h"
 #include "UI/PPHUDWidget.h"
 #include "Skill/PPSkillData.h"
+#include "Skill/PPSkillBase.h"
 #include "Engine/DataTable.h"
 #include "UI/PPEquippedSkillWidget.h"
 #include "GameData/PPGameSingleton.h"
+#include "UI/PPSelectSkillWidget.h"
+#include "Character/PPCharacterBase.h"
+#include "Skill/PPProjectileSkill.h"
+#include "Projectile/PPProjectileBase.h"
+
 
 APPPlayerController::APPPlayerController()
 {
@@ -20,6 +26,12 @@ APPPlayerController::APPPlayerController()
 	if (SkillDataTableRef.Object)
 	{
 		SkillDataTable = SkillDataTableRef.Object;
+	}
+
+	static ConstructorHelpers::FClassFinder<UPPSelectSkillWidget> SelectWidgetRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Purple/UI/WBP_SelectSkill.WBP_SelectSkill_C'"));
+	if (SelectWidgetRef.Succeeded())
+	{
+		SelectSkillWidgetClass = SelectWidgetRef.Class;
 	}
 
 }
@@ -42,17 +54,46 @@ void APPPlayerController::BeginPlay()
 		PPHUDWidget->AddToViewport();
 	}
 
+
 }
 
-void APPPlayerController::AcquireSkill(EPlayerSkillType SkillType, int32 SlotIndex = 0)
+void APPPlayerController::Tick(float DeltaTime)
 {
-	if (!SkillDataTable || !PPHUDWidget || !PPHUDWidget->GetEquippedSkillWidget()) return;
+	Super::Tick(DeltaTime);
 
-	auto SkillData = UPPGameSingleton::Get().GetSkillData(SkillType, 1);
-	
-	FString SkillTypeName = StaticEnum<EPlayerSkillType>()->GetNameStringByValue(static_cast<int32>(SkillType));
+	for (const auto& SkillPair : OwnedSkills)
+	{
+		if (SkillPair.Value)
+		{
+			SkillPair.Value->TickSkill(DeltaTime);
+		}
+	}
+}
 
-	PPHUDWidget->GetEquippedSkillWidget()->AssignSkillToSlot(SlotIndex, SkillType, SkillData.Icon);
+void APPPlayerController::AcquireSkill(EPlayerSkillType SkillType, int32 SlotIndex)
+{
+
+	if (!PlayerCharacter) return;
+
+	// 스킬 레벨 확인 (Character가 관리)
+	//int32 NewSkillLevel = PlayerCharacter->GetSkillLevel(SkillType) + 1;
+
+	const FPPSkillData* SkillData = UPPGameSingleton::Get().GetSkillData(SkillType, 1);
+	if (!SkillData) return;
+
+	// 스킬 인스턴스 생성
+	UPPProjectileSkill* NewSkill = NewObject<UPPProjectileSkill>(this, UPPProjectileSkill::StaticClass());
+	NewSkill->Initialize(PlayerCharacter);
+	NewSkill->SetProjectileClass(APPProjectileBase::StaticClass(), SkillType);
+	NewSkill->SetData(*SkillData, SlotIndex);
+
+	// 등록 및 바인딩
+	OwnedSkills.Add(SkillType, NewSkill);
+	BindSkill(NewSkill, SlotIndex);
+	PPHUDWidget->GetEquippedSkillWidget()->AssignSkillToSlot(SlotIndex, SkillData);
+
+	// 캐릭터는 내부 상태만 저장
+	PlayerCharacter->AcquireSkill(SkillType, SlotIndex);
 
 }
 
@@ -64,4 +105,37 @@ void APPPlayerController::UpdateExp(float Ratio)
 void APPPlayerController::BindSkill(UPPSkillBase* Skill, int32 SlotIndex)
 {
 	PPHUDWidget->GetEquippedSkillWidget()->BindSkill(Skill, SlotIndex);
+}
+
+UDataTable* APPPlayerController::GetSkillDataTable() const
+{
+	return SkillDataTable;
+}
+
+void APPPlayerController::ShowSkillSelectUI()
+{
+	if (!SelectSkillWidgetClass) return;
+
+	if (bIsSkillUIOpen)
+	{
+		++PendingSkillUpCount;
+		return;
+	}
+
+	UPPSelectSkillWidget* SelectWidget = CreateWidget<UPPSelectSkillWidget>(this, SelectSkillWidgetClass);
+	if (SelectWidget)
+	{
+		SelectWidget->AddToViewport();
+		SelectWidget->Init(this);
+
+		// 상태 설정
+		bIsSkillUIOpen = true;
+
+		SetPause(true);
+		SetShowMouseCursor(true);
+		FInputModeUIOnly InputMode;
+		InputMode.SetWidgetToFocus(SelectWidget->TakeWidget());
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		SetInputMode(InputMode);
+	}
 }

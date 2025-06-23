@@ -47,6 +47,10 @@ public:
 
 	int32 SlotIndex;
 
+	int32 NowLevel;
+
+	FORCEINLINE int32 GetCurrentLevel() { return NowLevel; }
+
 protected:
 	UPROPERTY()
 	TObjectPtr<class APPCharacterBase> OwnerCharacter;

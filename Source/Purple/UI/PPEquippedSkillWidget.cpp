@@ -51,9 +51,32 @@ void UPPEquippedSkillWidget::AssignSkillToSlot(int32 Index, EPlayerSkillType Ski
 	}
 }
 
-void UPPEquippedSkillWidget::AssignSkillToSlot(int32 Index, FPPSkillData InSkillData)
+void UPPEquippedSkillWidget::AssignSkillToSlot(int32 Index, const FPPSkillData* InSkillData)
 {
+	if (!SkillSlots.IsValidIndex(Index)) return;
+	FEquippedSkillSlotUI& SlotUI = SkillSlots[Index];
+	SlotUI.AssignedSkill = InSkillData->SkillType;
+	SlotUI.Icon = InSkillData->Icon;
+	UE_LOG(LogTemp, Log, TEXT("AssignSkillToSlot 들어옴."));
+	FSlateBrush Brush;
+	if (SlotUI.CooldownBar && SlotUI.Icon)
+	{
 
+		Brush.SetResourceObject(SlotUI.Icon);
+		//Brush.ImageSize = FVector2D(64.f, 64.f);
+		FProgressBarStyle ProgressBarStyle = SlotUI.CooldownBar->GetWidgetStyle();
+		ProgressBarStyle.SetBackgroundImage(Brush);
+		SlotUI.CooldownBar->SetWidgetStyle(ProgressBarStyle);
+		UE_LOG(LogTemp, Log, TEXT("SkillData 등록."));
+
+	}
+	else if (SlotUI.CooldownBar && !SlotUI.Icon)
+	{
+		FProgressBarStyle ProgressBarStyle = SlotUI.CooldownBar->GetWidgetStyle();
+		ProgressBarStyle.SetBackgroundImage(Brush);
+		SlotUI.CooldownBar->SetWidgetStyle(ProgressBarStyle);
+		UE_LOG(LogTemp, Log, TEXT("SkillData 등록 없음."));
+	}
 }
 
 void UPPEquippedSkillWidget::UpdateCooldown(EPlayerSkillType SkillType, float Ratio)

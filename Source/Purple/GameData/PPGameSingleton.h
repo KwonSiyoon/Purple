@@ -30,8 +30,7 @@ public:
 	UPROPERTY()
 	TObjectPtr<class UDataTable> SkillData;
 
-	UFUNCTION(BlueprintCallable)
-	FPPSkillData GetSkillData(EPlayerSkillType SkillType, int32 Level) const;
+	const FPPSkillData* GetSkillData(EPlayerSkillType SkillType, int32 Level) const;
 
 	TMap<EPlayerSkillType, TMap<int32, FPPSkillData>> SkillDataMap;
 

@@ -24,9 +24,9 @@ public:
     int32 NextLevel;
 };
 
+class UPPCardWidget;
 class UButton;
 class UImage;
-class UPPPlayerController;
 
 /**
  * 
@@ -44,18 +44,23 @@ public:
 protected:
     virtual void NativeConstruct() override;
 
-    /** 선택 가능한 스킬 후보들 */
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UPPCardWidget> SkillCard_0;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UPPCardWidget> SkillCard_1;
+
     UPROPERTY()
-    TArray<FSelectableSkillData> CurrentChoices;
-
-    /** 최대 선택지 수 */
-    static constexpr int32 MaxChoices = 3;
+    TObjectPtr<class APPPlayerController> OwnerController;
 
     UPROPERTY()
-    TObjectPtr<APPPlayerController> OwnerController;
+    TArray<struct FPPSkillData> CurrentSkillData; // 현재 표시 중인 스킬들
 
-    /** 선택된 스킬의 버튼을 바인딩할 때 사용할 함수 */
     UFUNCTION()
-    void OnSkillCardClicked(int32 Index);
+    void OnSkillCardClicked_0();
+
+    UFUNCTION()
+    void OnSkillCardClicked_1();
 	
 };

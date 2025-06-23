@@ -149,6 +149,11 @@ void APPCharacterBase::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 	PlayerController = Cast<APPPlayerController>(NewController);
+	PlayerController->SetPlayerCharacter(this);
+
+
+	
+
 }
 
 void APPCharacterBase::SetDead()
@@ -159,14 +164,12 @@ void APPCharacterBase::SetDead()
 void APPCharacterBase::GetExp(float InValue)
 {
 	CurrentExp += InValue;
-	/*UE_LOG(LogTemp, Log, TEXT("EXP 흡수 -> CurrentLevel : %d || MaxExp : %.1f || CurrentExp : %.1f "), CurrentLevel, MaxExp, CurrentExp);*/
 
 	while (MaxExp <= CurrentExp)
 	{
 		CurrentExp -= MaxExp;
 		LevelUp();
 
-		/*UE_LOG(LogTemp, Log, TEXT("LevelUp -> CurrentLevel : %d || MaxExp : %.1f || CurrentExp : %.1f "), CurrentLevel, MaxExp, CurrentExp);*/
 	}
 
 	PlayerController->UpdateExp(CurrentExp / MaxExp);
@@ -177,19 +180,10 @@ void APPCharacterBase::LevelUp()
 	CurrentLevel++;
 	MaxExp *= 2;
 
-}
-
-void APPCharacterBase::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-	for (const auto& SkillPair : OwnedSkills)
+	if (PlayerController)
 	{
-		if (SkillPair.Value)
-		{
-			SkillPair.Value->TickSkill(DeltaTime);
-		}
+		PlayerController->ShowSkillSelectUI(); // 여기서 UI 띄움
 	}
-
 }
 
 // Called when the game starts or when spawned
@@ -200,10 +194,11 @@ void APPCharacterBase::BeginPlay()
 	SetCharacterControl(CurrentCharacterControlType);
 
 	// @ToDo : 스킬획득 처리 따로 해야함.
-	ProjectileSkillClass = UPPProjectileSkill::StaticClass();
+	//ProjectileSkillClass = UPPProjectileSkill::StaticClass();
 
-	AcquireSkill(EPlayerSkillType::Iceball, 0);
-	AcquireSkill(EPlayerSkillType::Light, 1);
+	PlayerController->AcquireSkill(EPlayerSkillType::Iceball, 0);
+	PlayerController->AcquireSkill(EPlayerSkillType::Light, 1);
+
 
 	GetExp(0);
 
@@ -241,7 +236,7 @@ void APPCharacterBase::QuarterMove(const FInputActionValue& Value)
 
 void APPCharacterBase::UseActiveSkill(EPlayerSkillType SkillType)
 {
-	if (TObjectPtr<UPPSkillBase>* Found = OwnedSkills.Find(SkillType))
+	if (TObjectPtr<UPPSkillBase>* Found = PlayerController->OwnedSkills.Find(SkillType))
 	{
 		if (Found && *Found)
 		{
@@ -389,20 +384,23 @@ void APPCharacterBase::SetCharacterControl(ECharacterControlType NewCharacterCon
 
 const TObjectPtr<class UPPSkillBase>* APPCharacterBase::GetSkillByType(EPlayerSkillType SkillType) const
 {
-	return OwnedSkills.Find(SkillType);
+	return PlayerController->OwnedSkills.Find(SkillType);
 }
 
 void APPCharacterBase::AcquireSkill(EPlayerSkillType SkillType, int32 Index)
 {
-	UPPProjectileSkill* ProjectileSkilltemp = NewObject<UPPProjectileSkill>(this, ProjectileSkillClass);
+	/*UPPProjectileSkill* ProjectileSkilltemp = NewObject<UPPProjectileSkill>(this, ProjectileSkillClass);
 	ProjectileSkilltemp->Initialize(this);
 	ProjectileSkilltemp->SetProjectileClass(APPProjectileBase::StaticClass(), SkillType);
-	ProjectileSkilltemp->SetData(UPPGameSingleton::Get().GetSkillData(SkillType, 1), Index);
-	OwnedSkills.Add(SkillType, ProjectileSkilltemp);
 
+	const FPPSkillData* SkillData = UPPGameSingleton::Get().GetSkillData(SkillType, 1);
+	if (!SkillData) return;
+	ProjectileSkilltemp->SetData(*SkillData, Index);
+
+	PlayerController->OwnedSkills.Add(SkillType, ProjectileSkilltemp);
 
 	PlayerController->AcquireSkill(SkillType, Index);
-	PlayerController->BindSkill(ProjectileSkilltemp, Index);
+	PlayerController->BindSkill(ProjectileSkilltemp, Index);*/
 	EquippedSkills[Index] = SkillType;
 }
 

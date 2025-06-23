@@ -122,13 +122,13 @@ UPPGameSingleton& UPPGameSingleton::Get()
 	return *NewObject<UPPGameSingleton>();
 }
 
-FPPSkillData UPPGameSingleton::GetSkillData(EPlayerSkillType SkillType, int32 Level) const
+const FPPSkillData* UPPGameSingleton::GetSkillData(EPlayerSkillType SkillType, int32 Level) const
 {
 	if (const TMap<int32, FPPSkillData>* LevelMap = SkillDataMap.Find(SkillType))
 	{
 		UE_LOG(LogTemp, Log, TEXT("In UseSkill"))
 
-		return *LevelMap->Find(Level);
+		return LevelMap->Find(Level);
 	}
-	return FPPSkillData();
+	return nullptr;
 }

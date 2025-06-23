@@ -35,8 +35,6 @@ public:
 	virtual void GetExp(float InValue);
 	virtual void LevelUp();
 
-	virtual void Tick(float DeltaTime) override;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -96,10 +94,7 @@ public:	// Input Section.
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:	// Skill Section.
-	// 캐릭터가 보유한 스킬들
-	UPROPERTY()
-	TMap<EPlayerSkillType, TObjectPtr<class UPPSkillBase>> OwnedSkills;
-
+	
 	UPROPERTY()
 	TArray<EPlayerSkillType> EquippedSkills;
 
