@@ -97,7 +97,7 @@ void UPPProjectileSkill::UseSkill()
 
 		if (ProjectileObject)
 		{
-			ProjectileObject->InitProjectile(UPPGameSingleton::Get().SkillDatas[Type]);
+			ProjectileObject->InitProjectile(UPPGameSingleton::Get().ProjectileDatas[Type]);
 			ProjectileObject->FinishSpawning(SpawnTransform);
 			ProjectileObject->SetActorRotation(SpawnRotation);
 		}

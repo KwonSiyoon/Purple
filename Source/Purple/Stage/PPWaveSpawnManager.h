@@ -43,6 +43,8 @@ public:
     /** 시간·인덱스 초기화 */
     void ResetWaves();
 
+    void BeginPlay();
+
 private:
     /** 누적 시간 */
     float ElapsedTime = 0.f;

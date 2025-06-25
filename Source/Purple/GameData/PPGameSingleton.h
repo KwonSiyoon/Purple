@@ -22,7 +22,7 @@ public:
 
 	static UPPGameSingleton& Get();
 
-	TMap<EPlayerSkillType, FPPProjectileData> SkillDatas;
+	TMap<EPlayerSkillType, FPPProjectileData> ProjectileDatas;
 
 	UPROPERTY()
 	TObjectPtr<class UPPSkillDataManager> SkillDataManager;

@@ -71,4 +71,12 @@ public:
 	UPROPERTY()
 	TObjectPtr<class APPCharacterBase> PlayerCharacter;
 
+	UPROPERTY()
+	TSubclassOf<class APPStageManager> StageManagerClass;
+
+	UPROPERTY()
+	TObjectPtr<class APPStageManager> StageManager;
+
+	void StartStage();
+
 };

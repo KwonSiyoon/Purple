@@ -19,14 +19,24 @@ void UPPSkillBase::SetData(FPPSkillData InSkillData, int32 InSlotIndex)
 
 void UPPSkillBase::TickSkill(float DeltaTime)
 {
-    if (!bIsAuto)
-    {
-        float Ratio = GetCooldownRatio();
-        OnCooldownUpdated.Broadcast(SlotIndex, Ratio); // 갱신 알림
-    }
-    else
+    //if (!bIsAuto)
+    //{
+    //    float Ratio = GetCooldownRatio();
+    //    OnCooldownUpdated.Broadcast(SlotIndex, Ratio); // 갱신 알림
+    //}
+    //else
+    //{
+    //    TryUseSkill(); // 자동 사용 시도
+    //}
+
+    if (bIsAuto)
     {
         TryUseSkill(); // 자동 사용 시도
+    }
+    float Ratio = GetCooldownRatio();
+    if (OnCooldownUpdated.IsBound())
+    {
+        OnCooldownUpdated.Broadcast(SlotIndex, Ratio); // 갱신 알림
     }
 }
 

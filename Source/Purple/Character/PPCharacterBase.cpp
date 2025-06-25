@@ -149,9 +149,6 @@ void APPCharacterBase::PossessedBy(AController* NewController)
 	PlayerController = Cast<APPPlayerController>(NewController);
 	PlayerController->SetPlayerCharacter(this);
 
-
-	
-
 }
 
 void APPCharacterBase::SetDead()
@@ -187,13 +184,14 @@ void APPCharacterBase::LevelUp()
 void APPCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
 	SetCharacterControl(CurrentCharacterControlType);
 
 	PlayerController->AcquireSkill(EPlayerSkillType::Iceball, 0);
 	PlayerController->AcquireSkill(EPlayerSkillType::Light, 1);
 
 	GetExp(0);
+
+	PlayerController->StartStage();
 }
 
 void APPCharacterBase::QuarterMove(const FInputActionValue& Value)

@@ -20,7 +20,7 @@ UPPGameSingleton::UPPGameSingleton()
 			FPPProjectileData* FoundRow = DataTable->FindRow<FPPProjectileData>(RowName, TEXT("Skill Load"));
 			if (FoundRow)
 			{
-				SkillDatas.FindOrAdd(SkillEnum, *FoundRow);
+				ProjectileDatas.FindOrAdd(SkillEnum, *FoundRow);
 
 			}
 			
@@ -30,7 +30,7 @@ UPPGameSingleton::UPPGameSingleton()
 		}
 		UE_LOG(LogTemp, Log, TEXT("=== [UPPGameSingleton] SkillDatas 등록 결과 ==="));
 
-		for (const TPair<EPlayerSkillType, FPPProjectileData>& Pair : SkillDatas)
+		for (const TPair<EPlayerSkillType, FPPProjectileData>& Pair : ProjectileDatas)
 		{
 			FString EnumName = StaticEnum<EPlayerSkillType>()->GetNameStringByValue(static_cast<uint8>(Pair.Key));
 			const FPPProjectileData& Data = Pair.Value;

@@ -35,7 +35,6 @@ void UPPWaveSpawnManager::Initialize(UDataTable* InWaveTable, UDataTable* InPatt
 
 	ResetWaves();
 
-	CacheCameraWorldBounds();
 
 }
 
@@ -93,6 +92,15 @@ void UPPWaveSpawnManager::ResetWaves()
 	}
 }
 
+void UPPWaveSpawnManager::BeginPlay()
+{
+	Super::BeginPlay();
+	FTimerHandle DelayHandle;
+	GetWorld()->GetTimerManager().SetTimer(DelayHandle, this, &UPPWaveSpawnManager::CacheCameraWorldBounds, 0.1f, false);
+	//CacheCameraWorldBounds();
+
+}
+
 void UPPWaveSpawnManager::ExecuteWave(const FPPStageWave& InWaveData)
 {
 	const FPPSpawnPattern* Pattern = PatternTable->FindRow<FPPSpawnPattern>(InWaveData.PatternID, TEXT("PatternExec"));
@@ -140,22 +148,39 @@ FVector UPPWaveSpawnManager::CalcSpawnPos(const FPPSpawnPattern& Pattern, int32 
 	case ESpawnPatternType::OffscreenRandom:
 	{
 
-		// 플레이어 기준 방향 설정
+		//// 플레이어 기준 방향 설정
+		//FRandomStream Stream(FDateTime::Now().GetTicks() + IterIdx);
+
+		//const float MinOffsetX = CachedOffscreenMin.X;
+		//const float MinOffsetY = CachedOffscreenMin.Y;
+		//const float Extra = 10.f;
+
+		//const float RandX = Stream.FRandRange(0.f, 1.f) < 0.5f
+		//	? Stream.FRandRange(-MinOffsetX - Extra, -MinOffsetX - Extra * 2)
+		//	: Stream.FRandRange(MinOffsetX + Extra, MinOffsetX + Extra * 2);
+
+		//const float RandY = Stream.FRandRange(0.f, 1.f) < 0.5f
+		//	? Stream.FRandRange(-MinOffsetY - Extra, -MinOffsetY - Extra * 2)
+		//	: Stream.FRandRange(MinOffsetY + Extra, MinOffsetY + Extra * 2);
+
+		//return Center + FVector(RandX, RandY, 0.f);
 		FRandomStream Stream(FDateTime::Now().GetTicks() + IterIdx);
 
-		const float MinOffsetX = CachedOffscreenMin.X;
-		const float MinOffsetY = CachedOffscreenMin.Y;
-		const float Extra = 10.f;
+		const float ExtraRatio = 0.2f;
+		const float MinX = CachedOffscreenMin.X * (1.f + ExtraRatio);
+		const float MinY = CachedOffscreenMin.Y * (1.f + ExtraRatio);
 
+		// X, Y를 각각 왼쪽/오른쪽 또는 위/아래 방향으로 선택
 		const float RandX = Stream.FRandRange(0.f, 1.f) < 0.5f
-			? Stream.FRandRange(-MinOffsetX - Extra, -MinOffsetX - Extra * 2)
-			: Stream.FRandRange(MinOffsetX + Extra, MinOffsetX + Extra * 2);
+			? Stream.FRandRange(-MinX * 1.2f, -MinX)
+			: Stream.FRandRange(MinX, MinX * 1.2f);
 
 		const float RandY = Stream.FRandRange(0.f, 1.f) < 0.5f
-			? Stream.FRandRange(-MinOffsetY - Extra, -MinOffsetY - Extra * 2)
-			: Stream.FRandRange(MinOffsetY + Extra, MinOffsetY + Extra * 2);
+			? Stream.FRandRange(-MinY * 1.2f, -MinY)
+			: Stream.FRandRange(MinY, MinY * 1.2f);
 
 		return Center + FVector(RandX, RandY, 0.f);
+
 	}
 	default:
 	{
@@ -185,7 +210,7 @@ void UPPWaveSpawnManager::SpawnEnemy(TSubclassOf<APPEnemyCharacterBase> EnemyCla
 
 void UPPWaveSpawnManager::CacheCameraWorldBounds()
 {
-	if (const APlayerCameraManager* CamMgr = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0))
+	/*if (const APlayerCameraManager* CamMgr = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0))
 	{
 		const FVector CamLoc = CamMgr->GetCameraLocation();
 		TArray<FVector> Corners;
@@ -214,7 +239,69 @@ void UPPWaveSpawnManager::CacheCameraWorldBounds()
 		}
 
 		CachedOffscreenMin = FVector2D(MaxX, MaxY);
+	}*/
+	if (!GEngine) return;
+
+	FVector2D ViewportSize;
+	GEngine->GameViewport->GetViewportSize(ViewportSize);
+
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (!PC) return;
+
+	APawn* PlayerPawn = PC->GetPawn();
+	if (!PlayerPawn) return;
+
+	APlayerCameraManager* CamMgr = PC->PlayerCameraManager;
+	if (!CamMgr) return;
+
+	const FVector CamLoc = CamMgr->GetCameraLocation();
+	const FRotator CamRot = CamMgr->GetCameraRotation();
+	const FVector PlayerLoc = PlayerPawn->GetActorLocation();
+
+	const float FOV = CamMgr->GetFOVAngle();
+	const float AspectRatio = ViewportSize.X / ViewportSize.Y;
+	const float HalfFOVRad = FMath::DegreesToRadians(FOV * 0.5f);
+
+	const FVector Forward = CamRot.Vector();
+	const FVector Right = FRotationMatrix(CamRot).GetUnitAxis(EAxis::Y);
+	const FVector Up = FRotationMatrix(CamRot).GetUnitAxis(EAxis::Z);
+
+	// 카메라 시야의 꼭짓점 방향 벡터 계산
+	const TArray<FVector> CornerDirs = {
+		(Forward + FMath::Tan(HalfFOVRad) * (Right + Up * (1.f / AspectRatio))).GetSafeNormal(),
+		(Forward + FMath::Tan(HalfFOVRad) * (-Right + Up * (1.f / AspectRatio))).GetSafeNormal(),
+		(Forward + FMath::Tan(HalfFOVRad) * (Right - Up * (1.f / AspectRatio))).GetSafeNormal(),
+		(Forward + FMath::Tan(HalfFOVRad) * (-Right - Up * (1.f / AspectRatio))).GetSafeNormal()
+	};
+
+	float MaxX = 0.f;
+	float MaxY = 0.f;
+
+	for (const FVector& Dir : CornerDirs)
+	{
+		const FVector TraceStart = CamLoc + Dir * 100.f;
+		const FVector TraceEnd = TraceStart + Dir * 100000.f;
+
+		FHitResult Hit;
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(PlayerPawn);
+
+		if (GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECC_Visibility, Params))
+		{
+			const FVector2D Offset = FVector2D(Hit.Location - PlayerLoc);
+			MaxX = FMath::Max(MaxX, FMath::Abs(Offset.X));
+			MaxY = FMath::Max(MaxY, FMath::Abs(Offset.Y));
+
+			DrawDebugLine(GetWorld(), TraceStart, Hit.Location, FColor::Cyan, false, 10.f, 0, 2.f);
+			DrawDebugSphere(GetWorld(), Hit.Location, 30.f, 12, FColor::Red, false, 10.f);
+		}
+		else
+		{
+			DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Magenta, false, 10.f, 0, 2.f);
+		}
 	}
+
+	CachedOffscreenMin = FVector2D(MaxX, MaxY);
 }
 
 

@@ -12,6 +12,7 @@
 #include "Character/PPCharacterBase.h"
 #include "Skill/PPProjectileSkill.h"
 #include "Projectile/PPProjectileBase.h"
+#include "Stage/PPStageManager.h"
 
 
 APPPlayerController::APPPlayerController()
@@ -34,6 +35,12 @@ APPPlayerController::APPPlayerController()
 		SelectSkillWidgetClass = SelectWidgetRef.Class;
 	}
 
+	static ConstructorHelpers::FClassFinder<APPStageManager> StageManagerRef(TEXT("/Script/Engine.Blueprint'/Game/Purple/Blueprint/BP_StageManager.BP_StageManager_C'"));
+	if (StageManagerRef.Succeeded())
+	{
+		StageManagerClass = StageManagerRef.Class;
+	}
+
 }
 
 void APPPlayerController::BeginPlay()
@@ -53,7 +60,8 @@ void APPPlayerController::BeginPlay()
 		// 위젯을 화면에 추가해 UI가 보일 수 있도록 설정.
 		PPHUDWidget->AddToViewport();
 	}
-
+	
+	
 
 }
 
@@ -134,5 +142,17 @@ void APPPlayerController::ShowSkillSelectUI()
 		InputMode.SetWidgetToFocus(SelectWidget->TakeWidget());
 		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 		SetInputMode(InputMode);
+	}
+}
+
+void APPPlayerController::StartStage()
+{
+	if (StageManagerClass)
+	{
+		FActorSpawnParameters Params;
+		Params.Owner = this;
+		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		StageManager = GetWorld()->SpawnActor<APPStageManager>(StageManagerClass, FVector::ZeroVector, FRotator::ZeroRotator, Params);
 	}
 }
